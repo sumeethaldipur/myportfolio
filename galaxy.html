@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Sumeet Haldipur · Product Manager building delightful, data-driven products."
+    />
+    <title>Sumeet Haldipur · Cosmic Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="galaxy.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <!-- Cosmic background layers -->
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <div class="nebula" aria-hidden="true">
+      <div class="nebula-blob nb-1"></div>
+      <div class="nebula-blob nb-2"></div>
+      <div class="nebula-blob nb-3"></div>
+    </div>
+    <div class="shooting-stars" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="cursor-dot" aria-hidden="true"></div>
+
+    <!-- Nav -->
+    <nav class="nav">
+      <a href="#top" class="nav-logo">
+        <span class="logo-mark">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <path d="M12 2l1.8 6.6L20 10l-6.2 1.4L12 18l-1.8-6.6L4 10l6.2-1.4L12 2z" fill="white"/>
+          </svg>
+        </span>
+        <span class="logo-text">Sumeet Haldipur</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Journey</a></li>
+        <li><a href="#projects">Constellations</a></li>
+        <li><a href="#skills">Toolkit</a></li>
+        <li><a href="#contact">Signal</a></li>
+      </ul>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon">🌌</span>
+      </button>
+    </nav>
+
+    <!-- Hero -->
+    <header id="top" class="hero">
+      <div class="orbit" aria-hidden="true">
+        <div class="orbit-ring r1"><span class="planet p1"></span></div>
+        <div class="orbit-ring r2"><span class="planet p2"></span></div>
+        <div class="orbit-ring r3"><span class="planet p3"></span></div>
+        <div class="sun"></div>
+      </div>
+
+      <div class="hero-inner">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span> Transmitting from Bengaluru, Earth
+        </div>
+        <h1 class="hero-title">
+          Hey, I'm <span class="gradient-text">Sumeet</span>.<br />
+          I build products people
+          <span class="word-rotator">
+            <span class="word-rotator-inner">
+              <span>love.</span>
+              <span>need.</span>
+              <span>use daily.</span>
+              <span>brag about.</span>
+              <span>love.</span>
+            </span>
+          </span>
+        </h1>
+        <p class="hero-subtitle">
+          <strong>Product Manager II</strong> at <strong>ShareFile (Progress Software)</strong>.
+          Previously shaped products used by
+          <strong>170M+ jobseekers</strong> across India. I love turning messy
+          problems into elegant, measurable wins.
+        </p>
+        <div class="hero-cta">
+          <a href="#experience" class="btn btn-primary">
+            Launch tour
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 12h14M13 6l6 6-6 6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+          <a href="#contact" class="btn btn-ghost">Send signal</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-num" data-count="170" data-suffix=" Million+">0</div>
+            <div class="stat-label">Users impacted</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" data-count="71" data-suffix="%">0</div>
+            <div class="stat-label">NPS lift at WorkIndia</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" data-count="3">0</div>
+            <div class="stat-label">Continents collaborated across</div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-hint" aria-hidden="true">
+        <span></span>
+        descend
+      </div>
+    </header>
+
+    <!-- About -->
+    <section id="about" class="section reveal">
+      <div class="section-head">
+        <span class="kicker">★ 01 · Origin story</span>
+        <h2>Product, but make it human.</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-card glass">
+          <p>
+            I'm a Product Manager based in Bengaluru with a Computer
+            Engineering degree from
+            <strong>Sardar Patel Institute of Technology</strong>
+            and a Management minor from
+            <strong>S.P. Jain Institute of Management and Research</strong>.
+          </p>
+          <p>
+            Today I lead product strategy for
+            <strong>ShareFile's mobile &amp; desktop apps</strong>, used by 6M+
+            business users, including the zero-to-one launch of
+            <em>ShareFile for Clients</em>. Before that, I drove taxonomy at
+            <strong>Naukri</strong> and ran the relevance &amp; usability charter
+            at <strong>WorkIndia</strong>.
+          </p>
+          <p>
+            I get a kick out of root-cause analysis, sharp metrics, and shipping
+            things that actually move the needle.
+          </p>
+        </div>
+        <div class="about-side">
+          <div class="chip-group">
+            <span class="chip">🪐 Bengaluru, India</span>
+            <span class="chip">🎓 B.Tech, Computer Engineering</span>
+            <span class="chip">📊 Data-led PM</span>
+            <span class="chip">🚀 0 → 1 builder</span>
+            <span class="chip">🤝 Stakeholder whisperer</span>
+            <span class="chip">🛸 LLM tinkerer</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience timeline -->
+    <section id="experience" class="section reveal">
+      <div class="section-head">
+        <span class="kicker">★ 02 · Trajectory</span>
+        <h2>The journey so far.</h2>
+      </div>
+      <div class="timeline">
+        <article class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-card glass">
+            <div class="tl-meta">
+              <span class="tl-date">Apr 2025 to Present</span>
+              <span class="tl-tag tag-now">Current orbit</span>
+            </div>
+            <h3>Product Manager II</h3>
+            <h4>ShareFile (formerly Citrix ShareFile) · Progress Software</h4>
+            <ul>
+              <li>
+                Own end-to-end product strategy &amp; execution for ShareFile's
+                mobile and desktop apps, used by
+                <strong>6M+ business users</strong>.
+              </li>
+              <li>
+                Leading <strong>0 → 1 development</strong> of the
+                <em>ShareFile for Clients</em> mobile app, helping businesses
+                move faster with their end clients.
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-card glass">
+            <div class="tl-meta">
+              <span class="tl-date">Oct 2024 to Mar 2025</span>
+            </div>
+            <h3>Associate Product Manager</h3>
+            <h4>Naukri.com · Info Edge India Pvt. Ltd.</h4>
+            <ul>
+              <li>
+                Helmed taxonomy for India's largest job platform with
+                <strong>120M+ jobseekers</strong> across
+                <strong>14 Info Edge companies</strong>.
+              </li>
+              <li>
+                Used LLMs + Python to enrich data: <strong>+47%</strong> location
+                mapping, <strong>+60%</strong> language mapping,
+                <strong>+25%</strong> institute mapping.
+              </li>
+              <li>
+                Scraped &amp; standardized institute data, driving a
+                <strong>104% increase</strong> in institute coverage.
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-card glass">
+            <div class="tl-meta">
+              <span class="tl-date">Jul 2023 to Sep 2024</span>
+            </div>
+            <h3>Associate Product Manager</h3>
+            <h4>WorkIndia · India's largest blue/gray-collar job portal</h4>
+            <ul>
+              <li>
+                <strong>+71% NPS</strong>, <strong>+53%</strong> leads consumed
+                per employer through relevance &amp; usability initiatives.
+              </li>
+              <li>
+                Owned the irrelevant-applications problem end-to-end →
+                <strong>+54%</strong> relevant job applications.
+              </li>
+              <li>
+                Reimagined onboarding with an image-led flow →
+                <strong>+48%</strong> onboarding funnel improvement.
+              </li>
+              <li>
+                <strong>+61%</strong> product adoption,
+                <strong>−63%</strong> communication cost,
+                <strong>9/9 KRs</strong> delivered across quarters.
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-card glass">
+            <div class="tl-meta">
+              <span class="tl-date">Jan 2023 to Jun 2023</span>
+              <span class="tl-tag">Internship</span>
+            </div>
+            <h3>Associate Product Manager Trainee</h3>
+            <h4>WorkIndia</h4>
+            <ul>
+              <li>
+                SEO + schema-driven changes →
+                <strong>9-place (53%) jump</strong> on Google for Jobs.
+              </li>
+              <li>
+                Website revamp →
+                <strong>+34%</strong> visitors,
+                <strong>+27%</strong> app downloads.
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-card glass">
+            <div class="tl-meta">
+              <span class="tl-date">Jan 2022 to Jun 2022</span>
+              <span class="tl-tag">Internship</span>
+            </div>
+            <h3>Risk Advisory Intern</h3>
+            <h4>Deloitte Touche Tohmatsu India, LLP</h4>
+            <ul>
+              <li>
+                IT General Controls Testing &amp; security reviews across
+                Access Security, Change Management, Data Center &amp; Network
+                Ops for BFSI clients.
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Projects + Achievements -->
+    <section id="projects" class="section reveal">
+      <div class="section-head">
+        <span class="kicker">★ 03 · Constellations</span>
+        <h2>Things I'm proud of.</h2>
+      </div>
+      <div class="cards-grid">
+        <div class="proj-card glass tilt">
+          <div class="proj-emoji">🧠</div>
+          <h3>Moody.ai</h3>
+          <p class="proj-tag">Research · Deep Learning</p>
+          <p>
+            Co-authored a research paper on an adaptive activity recommendation
+            system using facial emotion detection with a VGG-16 CNN, achieving
+            <strong>90% recognition accuracy</strong>.
+          </p>
+        </div>
+
+        <div class="proj-card glass tilt">
+          <div class="proj-emoji">🏆</div>
+          <h3>CX Excellence Award</h3>
+          <p class="proj-tag">2024 · WorkIndia</p>
+          <p>
+            Winner of the <em>Best Use of Data Analytics in CX for an Online Job
+            Portal</em>.
+          </p>
+        </div>
+
+        <div class="proj-card glass tilt">
+          <div class="proj-emoji">🚀</div>
+          <h3>Entrepreneur Premier League</h3>
+          <p class="proj-tag">IBS Mumbai · 2021</p>
+          <p>
+            Winner of a business idea pitching competition with
+            <strong>200+ teams</strong>.
+          </p>
+        </div>
+
+        <div class="proj-card glass tilt">
+          <div class="proj-emoji">🎤</div>
+          <h3>Pitch Perfect</h3>
+          <p class="proj-tag">TSEC · 2021</p>
+          <p>
+            Runner-Up out of <strong>400+ teams</strong> at the business idea
+            pitching competition.
+          </p>
+        </div>
+
+        <div class="proj-card glass tilt">
+          <div class="proj-emoji">🥈</div>
+          <h3>Olympic Bid Case Study</h3>
+          <p class="proj-tag">ECell SPIT · 2020</p>
+          <p>Runner-Up among <strong>150+ teams</strong>.</p>
+        </div>
+
+        <div class="proj-card glass tilt">
+          <div class="proj-emoji">🎓</div>
+          <h3>Leadership</h3>
+          <p class="proj-tag">SPIT · MJ Junior College</p>
+          <p>
+            General Secretary at SPIT (2,500+ students) representing the
+            institute at city, state &amp; national levels. Earlier, Head Student
+            Rep at MJ Jr. College.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section id="skills" class="section reveal">
+      <div class="section-head">
+        <span class="kicker">★ 04 · Toolkit</span>
+        <h2>What I work with.</h2>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-col glass">
+          <h3>⚙️ Technical</h3>
+          <div class="skill-tags">
+            <span>Python</span><span>SQL</span><span>Generative AI</span>
+            <span>JIRA</span><span>Figma</span><span>Tableau</span>
+            <span>Confluence</span><span>MS Excel</span><span>PowerPoint</span>
+          </div>
+        </div>
+        <div class="skill-col glass">
+          <h3>🧭 Product &amp; Strategy</h3>
+          <div class="skill-tags">
+            <span>Root Cause Analysis</span><span>Problem Solving</span>
+            <span>Metric Identification</span><span>Stakeholder Management</span>
+            <span>User Research</span><span>Data Analysis</span>
+            <span>Competitor Analysis</span><span>Critical Thinking</span>
+            <span>Product Strategy</span><span>Roadmapping</span>
+          </div>
+        </div>
+        <div class="skill-col glass">
+          <h3>❤️ Beyond work</h3>
+          <div class="skill-tags">
+            <span>⚽ Football</span>
+            <span>🏎️ F1</span>
+            <span>🏏 Cricket</span>
+            <span>Tutor · Dongri to Degree</span>
+            <span>Client Raising Mgr · AIESEC</span>
+            <span>Public speaking</span>
+            <span>Pitching</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section reveal contact-section">
+      <div class="contact-card glass">
+        <span class="kicker">★ 05 · Send a signal</span>
+        <h2>Let's build something stellar.</h2>
+        <p>
+          Whether it's a product idea, a roadmap riddle, or just chai, my
+          inbox is open across the galaxy.
+        </p>
+        <div class="contact-links">
+          <a href="mailto:sumeethaldipur.work@gmail.com" class="btn btn-primary">
+            ✉️ sumeethaldipur.work@gmail.com
+          </a>
+          <a
+            href="https://www.linkedin.com/in/shaldipur/"
+            target="_blank"
+            rel="noopener"
+            class="btn btn-ghost"
+          >
+            <svg
+              class="btn-icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="#0A66C2"
+              aria-hidden="true"
+            >
+              <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.28V1.72C24 .77 23.2 0 22.23 0z"/>
+            </svg>
+            LinkedIn</a
+          >
+          <a href="tel:+919136019438" class="btn btn-ghost">📞 +91 91360 19438</a>
+        </div>
+      </div>
+      <footer class="footer">
+        <p>
+          Crafted among the stars with curiosity &amp; way too many Figma frames. ©
+          <span id="year"></span> Sumeet Haldipur.
+        </p>
+      </footer>
+    </section>
+
+    <script src="galaxy.js"></script>
+  </body>
+</html>
