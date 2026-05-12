@@ -219,6 +219,19 @@ body {
   color: var(--text);
   text-shadow: 0 0 10px var(--accent-2);
 }
+.nav-toggle {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  place-items: center;
+}
 .theme-toggle {
   width: 34px; height: 34px;
   border-radius: 50%;
@@ -234,8 +247,54 @@ body {
   transform: rotate(20deg);
   box-shadow: 0 0 18px var(--accent);
 }
-@media (max-width: 720px) {
-  .logo-text, .nav-links { display: none; }
+@media (max-width: 900px) {
+  .nav {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    top: 10px;
+    border-radius: 20px;
+    padding: 10px 12px;
+    gap: 10px;
+    justify-content: space-between;
+  }
+  .logo-text {
+    display: none;
+  }
+  .nav-toggle {
+    display: grid;
+  }
+  .nav-links {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.7);
+  }
+  .nav.nav-open .nav-links {
+    display: flex;
+  }
+  .nav-links a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .nav-links a:hover,
+  .nav-links a:focus-visible {
+    background: var(--surface);
+    text-shadow: none;
+  }
 }
 
 /* ---------- Hero ---------- */
@@ -493,6 +552,7 @@ body {
 @media (max-width: 640px) {
   .hero-stats { grid-template-columns: 1fr; max-width: 360px; }
   .stat { min-height: auto; padding: 18px; }
+  .word-rotator { display: block; margin-top: 0.15em; }
 }
 
 .scroll-hint {
@@ -765,6 +825,129 @@ body {
   padding: 40px 20px 20px;
   color: var(--text-dim);
   font-size: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    min-height: auto;
+    padding: 110px 16px 90px;
+  }
+  .hero-badge {
+    margin-bottom: 18px;
+  }
+  .hero-title {
+    line-height: 1.12;
+    margin-bottom: 16px;
+  }
+  .hero-subtitle {
+    margin-bottom: 24px;
+  }
+  .hero-cta {
+    margin-bottom: 34px;
+  }
+  .btn {
+    min-height: 44px;
+    padding: 11px 18px;
+  }
+  .section {
+    padding: 72px 16px;
+  }
+  .section-head {
+    margin-bottom: 28px;
+  }
+  .about-card,
+  .skill-col,
+  .proj-card {
+    padding: 22px;
+  }
+  .timeline {
+    padding-left: 18px;
+  }
+  .timeline::before {
+    left: 4px;
+  }
+  .tl-dot {
+    left: -19px;
+    top: 20px;
+    width: 12px;
+    height: 12px;
+    border-width: 2px;
+  }
+  .tl-card {
+    padding: 18px;
+  }
+  .tl-card h3 {
+    font-size: 1.08rem;
+  }
+  .contact-section {
+    padding-bottom: 20px;
+  }
+  .contact-card {
+    padding: 32px 18px;
+  }
+  .contact-card::before {
+    width: 300px;
+    height: 300px;
+    top: -90px;
+    right: -90px;
+    filter: blur(54px);
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-title {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+  }
+  .hero-subtitle {
+    font-size: 0.98rem;
+  }
+  .chip {
+    width: 100%;
+    text-align: center;
+  }
+  .cards-grid,
+  .skills-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .contact-links {
+    gap: 10px;
+  }
+  .contact-links .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .shooting-stars,
+  .cursor-dot {
+    display: none;
+  }
+  .nebula-blob {
+    filter: blur(90px);
+  }
+  .nb-1,
+  .nb-2,
+  .nb-3 {
+    animation-duration: 40s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .shooting-stars,
+  .cursor-dot,
+  .orbit {
+    display: none;
+  }
 }
 
 ::selection { background: var(--accent); color: #0a0820; }
