@@ -457,6 +457,22 @@ body {
 }
 .hero-subtitle strong { color: var(--text); font-weight: 600; }
 
+.hero-tagline {
+  font-size: clamp(0.95rem, 1.5vw, 1.12rem);
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.2px;
+  margin: -8px auto 26px;
+  padding: 8px 18px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+.hero-tagline strong { font-weight: 700; }
+
 .hero-cta {
   display: flex; gap: 14px;
   justify-content: center; flex-wrap: wrap;
@@ -552,7 +568,6 @@ body {
 @media (max-width: 640px) {
   .hero-stats { grid-template-columns: 1fr; max-width: 360px; }
   .stat { min-height: auto; padding: 18px; }
-  .word-rotator { display: block; margin-top: 0.15em; }
 }
 
 .scroll-hint {
