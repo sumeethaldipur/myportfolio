@@ -25,7 +25,7 @@ function resize() {
 }
 
 function initStars() {
-  const densityDivisor = shouldUseLightEffects ? 3000 : 1800;
+  const densityDivisor = shouldUseLightEffects ? 4200 : 3000;
   const count = Math.floor((window.innerWidth * window.innerHeight) / densityDivisor);
   stars = [];
   for (let i = 0; i < count; i++) {
