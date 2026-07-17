@@ -256,13 +256,14 @@ body {
     border-radius: 20px;
     padding: 10px 12px;
     gap: 10px;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
   .logo-text {
     display: none;
   }
   .nav-toggle {
     display: grid;
+    margin-left: auto;
   }
   .nav-links {
     position: absolute;
@@ -458,15 +459,16 @@ body {
 .hero-subtitle strong { color: var(--text); font-weight: 600; }
 
 .hero-tagline {
-  font-size: clamp(0.95rem, 1.5vw, 1.12rem);
+  font-size: clamp(0.9rem, 1.5vw, 1.12rem);
   font-weight: 500;
   color: var(--text);
   letter-spacing: 0.2px;
-  margin: -8px auto 26px;
+  line-height: 1.5;
+  margin: -4px auto 26px;
   padding: 8px 18px;
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
+  display: inline-block;
+  max-width: min(92%, 640px);
+  text-align: center;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.04);
@@ -910,8 +912,17 @@ body {
 }
 
 @media (max-width: 520px) {
+  .hero {
+    padding: 104px 18px 110px;
+  }
   .hero-title {
     font-size: clamp(2rem, 9vw, 2.8rem);
+  }
+  .hero-tagline {
+    font-size: 0.9rem;
+    border-radius: 16px;
+    padding: 8px 14px;
+    max-width: 100%;
   }
   .hero-subtitle {
     font-size: 0.98rem;
