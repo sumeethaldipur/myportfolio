@@ -919,6 +919,10 @@ body {
   .hero-title {
     font-size: clamp(2rem, 9vw, 2.8rem);
   }
+  .hero-title .word-rotator {
+    display: block;
+    margin: 4px auto 0;
+  }
   .hero-tagline {
     font-size: 0.9rem;
     border-radius: 16px;
@@ -986,4 +990,3 @@ body {
   border: 2px solid var(--bg);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
