@@ -1,22 +1,32 @@
 // Year
-document.getElementById("year").textContent = new Date().getFullYear();
+const yearEl = document.getElementById("year");
+if (yearEl) {
+  yearEl.textContent = new Date().getFullYear();
+}
 
 // ---------- Starfield canvas ----------
 const canvas = document.getElementById("starfield");
-const ctx = canvas.getContext("2d");
+const ctx = canvas ? canvas.getContext("2d") : null;
 let stars = [];
 let w = 0, h = 0;
 
+const isTouchLike = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const shouldUseLightEffects = isTouchLike || prefersReducedMotion;
+
 function resize() {
-  w = canvas.width = window.innerWidth * window.devicePixelRatio;
-  h = canvas.height = window.innerHeight * window.devicePixelRatio;
+  if (!canvas || !ctx) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, shouldUseLightEffects ? 1.25 : 2);
+  w = canvas.width = Math.floor(window.innerWidth * dpr);
+  h = canvas.height = Math.floor(window.innerHeight * dpr);
   canvas.style.width = window.innerWidth + "px";
   canvas.style.height = window.innerHeight + "px";
   initStars();
 }
 
 function initStars() {
-  const count = Math.floor((window.innerWidth * window.innerHeight) / 1600);
+  const densityDivisor = shouldUseLightEffects ? 3000 : 1800;
+  const count = Math.floor((window.innerWidth * window.innerHeight) / densityDivisor);
   stars = [];
   for (let i = 0; i < count; i++) {
     stars.push({
@@ -37,6 +47,7 @@ let scrollY = 0;
 window.addEventListener("scroll", () => { scrollY = window.scrollY; }, { passive: true });
 
 function draw() {
+  if (!ctx || !canvas) return;
   ctx.clearRect(0, 0, w, h);
   for (const s of stars) {
     s.tw += s.tws;
@@ -49,15 +60,45 @@ function draw() {
       ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
     }
     ctx.beginPath();
-    ctx.arc(s.x, y, s.r * window.devicePixelRatio, 0, Math.PI * 2);
+    ctx.arc(s.x, y, s.r, 0, Math.PI * 2);
     ctx.fill();
   }
   requestAnimationFrame(draw);
 }
 
-resize();
-window.addEventListener("resize", resize);
-draw();
+if (canvas && ctx && !prefersReducedMotion) {
+  resize();
+  window.addEventListener("resize", resize);
+  draw();
+}
+
+// ---------- Mobile nav ----------
+const nav = document.querySelector(".nav");
+const navToggle = document.getElementById("nav-toggle");
+const navLinksList = document.getElementById("nav-links");
+if (nav && navToggle && navLinksList) {
+  const setOpen = (isOpen) => {
+    nav.classList.toggle("nav-open", isOpen);
+    navToggle.setAttribute("aria-expanded", String(isOpen));
+  };
+
+  navToggle.addEventListener("click", () => {
+    const isOpen = nav.classList.contains("nav-open");
+    setOpen(!isOpen);
+  });
+
+  navLinksList.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => setOpen(false));
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) setOpen(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+}
 
 // ---------- Theme toggle ----------
 const themeToggle = document.getElementById("theme-toggle");
@@ -141,15 +182,17 @@ if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
 }
 
 // ---------- Tilt ----------
-document.querySelectorAll(".tilt").forEach((card) => {
-  card.addEventListener("mousemove", (e) => {
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    card.style.transform = `translateY(-6px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg)`;
+if (!isTouchLike && !prefersReducedMotion) {
+  document.querySelectorAll(".tilt").forEach((card) => {
+    card.addEventListener("mousemove", (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `translateY(-6px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg)`;
+    });
+    card.addEventListener("mouseleave", () => { card.style.transform = ""; });
   });
-  card.addEventListener("mouseleave", () => { card.style.transform = ""; });
-});
+}
 
 // ---------- Nav highlight ----------
 const navLinks = document.querySelectorAll(".nav-links a");
