@@ -203,3 +203,243 @@ window.addEventListener("scroll", () => {
   sections.forEach((sec, i) => { if (sec && sec.offsetTop <= y) activeIdx = i; });
   navLinks.forEach((l, i) => { l.style.color = i === activeIdx ? "var(--text)" : ""; });
 });
+
+// ---------- Ask-me-anything chatbot ----------
+(function () {
+  // Point this at your deployed Vercel function. Falls back to a same-origin
+  // /api/chat when running locally with `vercel dev`.
+  const API_URL =
+    location.hostname === "localhost" || location.hostname === "127.0.0.1"
+      ? "/api/chat"
+      : "https://REPLACE-ME.vercel.app/api/chat";
+
+  const fab = document.getElementById("chat-fab");
+  const panel = document.getElementById("chat-panel");
+  const closeBtn = document.getElementById("chat-close");
+  const log = document.getElementById("chat-log");
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("chat-send");
+  const suggestions = document.getElementById("chat-suggestions");
+
+  if (!fab || !panel || !form || !input || !log) return;
+
+  const GREETING =
+    "Hey! I'm Sumeet's assistant — I know his work history, projects, and what he's looking for. Ask away.";
+
+  // Conversation history sent to the API. Trimmed server-side too.
+  let history = [];
+  let busy = false;
+  let started = false;
+
+  // --- rendering -----------------------------------------------------------
+
+  const escapeHtml = (s) =>
+    s.replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    })[c]);
+
+  // Minimal markdown: bold, inline code, links, paragraphs. Everything is
+  // escaped first, so model output can never inject markup.
+  function renderMarkdown(text) {
+    return escapeHtml(text)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(
+        /\[([^\]]+)\]\((https?:\/\/[^)\s]+|mailto:[^)\s]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>'
+      )
+      .replace(
+        /(^|\s)((?:https?:\/\/|mailto:)[^\s<]+)/g,
+        '$1<a href="$2" target="_blank" rel="noopener">$2</a>'
+      )
+      .split(/\n{2,}/)
+      .map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`)
+      .join("");
+  }
+
+  const atBottom = () =>
+    log.scrollHeight - log.scrollTop - log.clientHeight < 60;
+
+  function scrollDown(force) {
+    if (force || atBottom()) log.scrollTop = log.scrollHeight;
+  }
+
+  function addMessage(role, text) {
+    const el = document.createElement("div");
+    el.className = `chat-msg ${role}`;
+    if (role === "user") {
+      el.textContent = text;
+    } else {
+      el.innerHTML = renderMarkdown(text);
+    }
+    log.appendChild(el);
+    scrollDown(true);
+    return el;
+  }
+
+  function addTyping() {
+    const el = document.createElement("div");
+    el.className = "chat-msg bot";
+    el.innerHTML =
+      '<span class="chat-typing"><span></span><span></span><span></span></span>';
+    log.appendChild(el);
+    scrollDown(true);
+    return el;
+  }
+
+  // --- open / close --------------------------------------------------------
+
+  function openChat() {
+    panel.hidden = false;
+    fab.hidden = true;
+    // Force a reflow so the transition has a start value, then reveal
+    // synchronously. requestAnimationFrame is throttled in background tabs,
+    // which would leave the panel invisible but still swallowing clicks.
+    void panel.offsetWidth;
+    panel.classList.add("open");
+    if (!started) {
+      started = true;
+      addMessage("bot", GREETING);
+    }
+    setTimeout(() => input.focus(), 260);
+  }
+
+  function closeChat() {
+    panel.classList.remove("open");
+    fab.hidden = false;
+    setTimeout(() => {
+      panel.hidden = true;
+    }, 280);
+    fab.focus();
+  }
+
+  fab.addEventListener("click", openChat);
+  closeBtn?.addEventListener("click", closeChat);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && panel.classList.contains("open")) closeChat();
+  });
+
+  suggestions?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn || busy) return;
+    input.value = btn.textContent.trim();
+    form.requestSubmit();
+  });
+
+  // --- sending -------------------------------------------------------------
+
+  function setBusy(state) {
+    busy = state;
+    sendBtn.disabled = state;
+    input.disabled = state;
+  }
+
+  async function send(question) {
+    addMessage("user", question);
+    history.push({ role: "user", content: question });
+    if (suggestions) suggestions.hidden = true;
+
+    const typing = addTyping();
+    setBusy(true);
+
+    let bubble = null;
+    let answer = "";
+
+    const show = (chunk) => {
+      answer += chunk;
+      if (!bubble) {
+        typing.remove();
+        bubble = addMessage("bot", "");
+      }
+      bubble.innerHTML = renderMarkdown(answer);
+      scrollDown(false);
+    };
+
+    const fail = (msg) => {
+      if (bubble) bubble.remove();
+      typing.remove();
+      addMessage("bot", msg).classList.add("error");
+    };
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+      });
+
+      if (!res.ok) {
+        let msg = "Something went wrong. Try again in a moment?";
+        try {
+          const data = await res.json();
+          if (data?.error) msg = data.error;
+        } catch { /* non-JSON error body */ }
+        fail(msg);
+        return;
+      }
+
+      // Parse the SSE stream: events are separated by a blank line.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let errored = false;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const frames = buffer.split("\n\n");
+        buffer = frames.pop() ?? "";
+
+        for (const frame of frames) {
+          let event = "message";
+          let data = "";
+          for (const line of frame.split("\n")) {
+            if (line.startsWith("event:")) event = line.slice(6).trim();
+            else if (line.startsWith("data:")) data += line.slice(5).trim();
+          }
+          if (!data) continue;
+
+          let payload;
+          try {
+            payload = JSON.parse(data);
+          } catch {
+            continue;
+          }
+
+          if (event === "delta" && payload.text) show(payload.text);
+          else if (event === "error") {
+            errored = true;
+            fail(payload.message || "Something went wrong.");
+          }
+        }
+      }
+
+      if (!errored && answer.trim()) {
+        history.push({ role: "assistant", content: answer });
+      } else if (!errored && !answer.trim()) {
+        fail("I didn't catch that — mind rephrasing?");
+      }
+    } catch (err) {
+      console.error(err);
+      fail(
+        "I couldn't reach the server. You can always email sumeethaldipur.work@gmail.com."
+      );
+    } finally {
+      setBusy(false);
+      // Keep only the last 12 turns client-side as well.
+      if (history.length > 12) history = history.slice(-12);
+      input.focus();
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const question = input.value.trim();
+    if (!question || busy) return;
+    input.value = "";
+    send(question);
+  });
+})();

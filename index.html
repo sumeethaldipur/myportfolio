@@ -506,6 +506,68 @@
       </footer>
     </section>
 
+    <!-- Ask-me-anything chatbot -->
+    <button id="chat-fab" class="chat-fab" type="button" aria-label="Ask me anything about Sumeet">
+      <span class="fab-spark" aria-hidden="true">✨</span>
+      <span class="fab-label">Ask me anything</span>
+    </button>
+
+    <div
+      id="chat-panel"
+      class="chat-panel glass"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="chat-title"
+      hidden
+    >
+      <div class="chat-head">
+        <div class="chat-avatar" aria-hidden="true">🛰️</div>
+        <div>
+          <div id="chat-title" class="chat-title">Ask about Sumeet</div>
+          <div class="chat-status">
+            <span class="pulse-dot" aria-hidden="true"></span> Online · answers from his real background
+          </div>
+        </div>
+        <button id="chat-close" class="chat-close" type="button" aria-label="Close chat">✕</button>
+      </div>
+
+      <div id="chat-log" class="chat-log" role="log" aria-live="polite" aria-atomic="false"></div>
+
+      <div id="chat-suggestions" class="chat-suggestions">
+        <button type="button">What's he looking for?</button>
+        <button type="button">Tell me about ShareFile</button>
+        <button type="button">What's his AI experience?</button>
+        <button type="button">Why CMU?</button>
+      </div>
+
+      <form id="chat-form" class="chat-form" autocomplete="off">
+        <label for="chat-input" class="sr-only">Your question</label>
+        <input
+          id="chat-input"
+          type="text"
+          placeholder="Ask about his work, skills, availability…"
+          maxlength="1000"
+          required
+        />
+        <button type="submit" id="chat-send" aria-label="Send question">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M5 12h14M13 6l6 6-6 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </form>
+
+      <p class="chat-disclaimer">
+        AI assistant · may get things wrong ·
+        <a href="mailto:sumeethaldipur.work@gmail.com">email Sumeet directly</a>
+      </p>
+    </div>
+
     <script src="galaxy.js"></script>
   </body>
 </html>

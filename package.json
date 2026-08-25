@@ -1,0 +1,10 @@
+{
+  "name": "sumeet-portfolio-chat",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Serverless chat endpoint for sumeethaldipur.github.io/myportfolio",
+  "dependencies": {
+    "openai": "^7.5.0"
+  }
+}
