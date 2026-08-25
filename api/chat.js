@@ -10,7 +10,8 @@ import OpenAI from "openai";
 // Origins allowed to call this endpoint. The site is served from GitHub Pages,
 // which is a different origin from this function, so CORS has to be explicit.
 const ALLOWED_ORIGINS = new Set([
-  "https://sumeethaldipur.github.io",
+  "https://myportfolio-murex-six-91.vercel.app", // the Vercel deployment itself
+  "https://sumeethaldipur.github.io", // the GitHub Pages copy
   "http://localhost:8000",
   "http://127.0.0.1:8000",
   "http://localhost:3000",
@@ -75,9 +76,15 @@ You exist to talk about Sumeet's work, background, and availability. If asked to
 
 ${KNOWLEDGE}`;
 
-// Reads OPENAI_API_KEY from the environment. Never hardcode the key here —
-// this file is committed to a public repo.
-const client = new OpenAI();
+// Built lazily on first request, NOT at module scope: the SDK throws when
+// OPENAI_API_KEY is missing, and a throw during module load crashes the whole
+// function with an opaque FUNCTION_INVOCATION_FAILED before the handler can
+// report anything useful. Deferring it lets us return a readable error.
+let _client = null;
+function getClient() {
+  if (!_client) _client = new OpenAI(); // reads OPENAI_API_KEY from the environment
+  return _client;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -139,6 +146,13 @@ export default async function handler(req, res) {
   if (!KNOWLEDGE) {
     return res.status(500).json({ error: "Knowledge base failed to load." });
   }
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("OPENAI_API_KEY is not set in this deployment.");
+    return res.status(500).json({
+      error:
+        "The assistant isn't configured yet. (OPENAI_API_KEY missing on the server.)",
+    });
+  }
 
   const ip =
     (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
@@ -176,7 +190,7 @@ export default async function handler(req, res) {
     // request, so OpenAI's automatic prompt caching kicks in (prompts over
     // ~1024 tokens) and those input tokens bill at a discount. No explicit
     // cache configuration needed.
-    const stream = client.responses.stream({
+    const stream = getClient().responses.stream({
       model: MODEL,
       instructions: SYSTEM_PROMPT,
       input: messages.map((m) => ({ role: m.role, content: m.content })),

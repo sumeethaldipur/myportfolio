@@ -206,12 +206,19 @@ window.addEventListener("scroll", () => {
 
 // ---------- Ask-me-anything chatbot ----------
 (function () {
-  // Point this at your deployed Vercel function. Falls back to a same-origin
-  // /api/chat when running locally with `vercel dev`.
-  const API_URL =
-    location.hostname === "localhost" || location.hostname === "127.0.0.1"
-      ? "/api/chat"
-      : "https://REPLACE-ME.vercel.app/api/chat";
+  // NEVER put the API key here — this file is downloaded by every visitor and
+  // is readable via view-source. Only the public URL of the function goes in
+  // the browser; the key lives as an environment variable on Vercel.
+  //
+  // When the page is served from Vercel (or localhost) the function is on the
+  // same origin, so a relative path works and CORS never enters the picture.
+  // Served from GitHub Pages, it's a different origin and needs the full URL.
+  const VERCEL_API = "https://myportfolio-murex-six-91.vercel.app/api/chat";
+  const sameOrigin =
+    location.hostname.endsWith(".vercel.app") ||
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1";
+  const API_URL = sameOrigin ? "/api/chat" : VERCEL_API;
 
   const fab = document.getElementById("chat-fab");
   const panel = document.getElementById("chat-panel");

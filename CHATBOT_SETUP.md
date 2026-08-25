@@ -177,10 +177,29 @@ function too, install Node, then `npx vercel dev`.
 
 | Symptom | Cause |
 |---|---|
-| "Couldn't reach the server" | `REPLACE-ME` still in `galaxy.js`. |
+| `FUNCTION_INVOCATION_FAILED` (500 even on OPTIONS) | The function crashed at import. Almost always `OPENAI_API_KEY` missing — set it in Vercel and redeploy. |
 | CORS error in console | Your origin isn't in `ALLOWED_ORIGINS`. |
 | "Knowledge base failed to load" | `includeFiles` missing from `vercel.json`. |
-| 500 on every request | `OPENAI_API_KEY` not set in Vercel. |
+| "The assistant isn't configured yet" | `OPENAI_API_KEY` not set. Same fix, clearer message. |
 | 429 on every request | No credit on the OpenAI account. |
 | 401 in the Vercel logs | Key is wrong, or was revoked. |
 | Bot invents things | Add the fact to `profile.md` — it only knows that file. |
+
+### Reading the real error
+
+Vercel's browser-facing 500 is deliberately vague. The actual stack trace is in
+**your Vercel project → Logs**, with the runtime error that caused it. Check
+there first — it will name the missing variable or bad import directly.
+
+### A note on hosting
+
+Your Vercel deployment serves the entire portfolio, not just the function. So
+you now have the site at two URLs. Either is fine:
+
+- **Use the Vercel URL as your portfolio** — simplest. Everything is one origin,
+  CORS never applies, and there's one place to deploy.
+- **Keep GitHub Pages as canonical** — the chat calls Vercel cross-origin. This
+  already works; the Pages origin is in the allowlist.
+
+`galaxy.js` detects which origin it's running on and picks the right path
+automatically, so you don't have to choose now.
