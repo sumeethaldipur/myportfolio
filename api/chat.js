@@ -208,13 +208,44 @@ export default async function handler(req, res) {
     send("done", {});
     res.end();
   } catch (err) {
-    console.error("OpenAI API error:", err);
+    // Log the full detail for the Vercel dashboard.
+    console.error("OpenAI API error:", {
+      name: err?.name,
+      status: err?.status,
+      code: err?.code,
+      type: err?.type,
+      message: err?.message,
+    });
+
     // Headers are already sent at this point, so surface the failure over SSE.
-    const message =
-      err instanceof OpenAI.RateLimitError
-        ? "Getting a lot of traffic right now — try again shortly."
-        : "Something went wrong on my end. Email sumeethaldipur.work@gmail.com and Sumeet will answer directly.";
-    send("error", { message });
+    // Map by HTTP status rather than a single catch-all: "something went wrong"
+    // is useless when the real cause is an unpaid account or a model the key
+    // can't reach. Status codes aren't sensitive, so the code is echoed to make
+    // diagnosis possible without digging through logs.
+    // NOTE: these messages are deliberately specific while we're getting the
+    // deployment working. Before sharing the portfolio widely, collapse the
+    // 401/403/404 branches into the friendly catch-all below — a visitor
+    // shouldn't be told about the owner's billing or API key. The echoed
+    // `status` field is enough to keep diagnosing.
+    const status = err?.status;
+    let message;
+    if (status === 401) {
+      message = "The assistant's API key is invalid or was revoked.";
+    } else if (status === 403) {
+      message = "This API key doesn't have access to the configured model.";
+    } else if (status === 404) {
+      message = `Model "${MODEL}" isn't available to this account.`;
+    } else if (status === 429) {
+      message =
+        "Out of OpenAI credit, or too many requests. Check billing at platform.openai.com.";
+    } else if (status === 400) {
+      message = `Bad request to the model API: ${err?.message ?? "unknown"}`;
+    } else {
+      message =
+        "Something went wrong on my end. Email sumeethaldipur.work@gmail.com and Sumeet will answer directly.";
+    }
+
+    send("error", { message, status: status ?? null });
     send("done", {});
     res.end();
   }
