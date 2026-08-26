@@ -38,16 +38,24 @@ const NIM_BASE_URL =
 // through on "model unavailable" errors. First entry wins when it's available.
 // Check what's currently served (no API key needed):
 //   curl https://integrate.api.nvidia.com/v1/models
+// ORDER MATTERS. The first entry is tried first, and on a cold start there is
+// no remembered model, so a dud in front costs its full timeout on the very
+// first request a visitor makes — the worst possible place to spend 10s.
+//
+// Measured on this account (2026-08-26):
+//   nemotron-3.5-lightning  200, ~0.6-1.0s warm   <- best
+//   nemotron-3-ultra        200, but much slower and verbose
+//   gemma-4-31b-it          hangs; never responds. REMOVED from the list:
+//                           it was first, and every cold start paid 10s for it.
+//   deepseek-v4-flash-0731  404, not granted to this account
+//   deepseek-v4-pro         410, retired 2026-08-07
+//
+// Do not promote an unverified model to the top. Check it first with
+// ./check-models.sh, then reorder.
 const MODEL_CANDIDATES = [
-  // Gemma 4 31B: strong instruction-following at a size that answers fast.
-  // Third-party on NVIDIA's platform, so it may be un-entitled the way
-  // DeepSeek was — which is exactly what this list is for.
-  "google/gemma-4-31b-it",
-  // Leaner and faster than Ultra — what DeepSeek Flash was wanted for.
-  "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "nvidia/nemotron-3.5-lightning-30b-a3b", // verified fast on this account
   "nvidia/nemotron-3-nano-30b-a3b",
-  // Proven working; the safety net.
-  "nvidia/nemotron-3-ultra-550b-a55b",
+  "nvidia/nemotron-3-ultra-550b-a55b", // verified working; slow safety net
 ];
 
 // Statuses that mean "this model isn't usable", as opposed to a real fault.
