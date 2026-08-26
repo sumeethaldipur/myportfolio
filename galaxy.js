@@ -241,53 +241,88 @@ window.addEventListener("scroll", () => {
     document.body.classList.toggle("chat-engaged", on);
   }
   function syncEngaged() {
-    setEngaged(started || input.value.trim().length > 0);
+    const want = started || input.value.trim().length > 0;
+    const changed = want !== document.body.classList.contains("chat-engaged");
+    setEngaged(want);
+    // Start the scroll on the SAME frame the collapse starts, and give it the
+    // collapse's own duration so the two move as one motion rather than two.
+    if (changed) centerSubject(700);
   }
   input.addEventListener("input", syncEngaged);
 
-  // Bring the composer to the middle of the screen when it's focused. Without
-  // this the greeting collapses around the visitor while the page stays put,
-  // so the input appears to jump rather than the view following it.
+  // Keeping the right thing centred, while the layout is still moving.
+  //
+  // The greeting collapse takes 550ms. Waiting for it to finish and *then*
+  // scrolling produces two separate movements — the input jumps up, then the
+  // page catches up. Instead the scroll runs CONCURRENTLY with the collapse and
+  // re-reads its goal every frame, so the target stays put on screen while
+  // everything around it rearranges.
   const composer = form;
-
-  // Hand-rolled rather than scrollIntoView({behavior:"smooth"}) for two
-  // reasons. First, `html { scroll-behavior: smooth }` is set globally, so the
-  // browser runs its OWN animation on top of any programmatic scroll — the two
-  // fight and the result stutters. Second, native smooth scroll picks its own
-  // duration, which over a long distance drags. A fixed 420ms ease is
-  // predictable and reads as smooth at any distance.
   const html = document.documentElement;
   let scrollRaf = null;
 
-  function easeInOutCubic(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  // Before anything is sent, the composer is the subject. Once there's a
+  // conversation, the conversation is — centring the input then would push the
+  // replies off the top of the screen.
+  function subject() {
+    return log && !log.hidden && log.children.length ? log : composer;
   }
 
-  function scrollToY(targetY, duration = 420) {
-    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+  function goalScrollY() {
+    const box = subject().getBoundingClientRect();
+    const wanted =
+      window.scrollY + box.top + box.height / 2 - window.innerHeight / 2;
     const maxY = document.documentElement.scrollHeight - window.innerHeight;
-    const endY = Math.max(0, Math.min(targetY, maxY));
-    const startY = window.scrollY;
-    const delta = endY - startY;
-    if (Math.abs(delta) < 2) return;
+    return Math.max(0, Math.min(wanted, maxY));
+  }
 
-    if (prefersReducedMotion || duration === 0) {
-      window.scrollTo(0, endY);
+  // An exponential follow, not a timed ease. A timed ease-in-out spends its
+  // first third barely moving, which against a simultaneously-collapsing
+  // layout reads as "nothing happened, then it lurched". Following the goal by
+  // a fraction of the remaining distance each frame starts moving immediately
+  // and decelerates into place — and because the goal is re-read every frame,
+  // it tracks the collapse instead of racing it.
+  function centerSubject(duration = 420) {
+    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+
+    if (prefersReducedMotion) {
+      window.scrollTo(0, goalScrollY());
       return;
     }
+    // Deliberately NO "already close enough, skip it" guard here. When this is
+    // called because the greeting is about to collapse, the composer is still
+    // centred at that exact instant — the layout hasn't moved yet. Bailing out
+    // on the current gap means never following the change that's coming. If
+    // there genuinely is nothing to do, the loop just idles and exits.
 
-    // Suppress the CSS-level smooth scroll for the duration of ours, otherwise
-    // every per-frame scrollTo would kick off its own easing.
     const previousBehavior = html.style.scrollBehavior;
     html.style.scrollBehavior = "auto";
 
     const startedAt = performance.now();
+    let last = startedAt;
+    // Time constant. Tighter than the obvious duration/3: the goal is moving
+    // under a CSS ease, and a loose follow visibly trails it before catching
+    // up. duration/6 tracks closely enough to read as one motion, while still
+    // easing rather than snapping.
+    const tau = duration / 6;
+
     const step = (now) => {
-      const t = Math.min(1, (now - startedAt) / duration);
-      window.scrollTo(0, startY + delta * easeInOutCubic(t));
-      if (t < 1) {
+      const dt = Math.min(50, now - last);
+      last = now;
+      const y = window.scrollY;
+      const diff = goalScrollY() - y;
+      const alpha = 1 - Math.exp(-dt / tau);
+      window.scrollTo(0, y + diff * alpha);
+
+      // Run the FULL duration, then snap. Exiting early on "the gap looks
+      // closed" is unreliable here: the layout is still animating, so the goal
+      // keeps moving. The follow would catch it for one frame, call itself
+      // done, and leave the page parked while the collapse carried on — which
+      // is how the composer ended up 200px off centre.
+      if (now - startedAt < duration) {
         scrollRaf = requestAnimationFrame(step);
       } else {
+        window.scrollTo(0, goalScrollY());
         scrollRaf = null;
         html.style.scrollBehavior = previousBehavior;
       }
@@ -295,29 +330,7 @@ window.addEventListener("scroll", () => {
     scrollRaf = requestAnimationFrame(step);
   }
 
-  function centerComposer(duration) {
-    const box = composer.getBoundingClientRect();
-    const target =
-      window.scrollY + box.top + box.height / 2 - window.innerHeight / 2;
-    scrollToY(target, duration);
-  }
-
-  input.addEventListener("focus", () => centerComposer());
-
-  // The greeting collapse moves the composer after focus, so re-centre once
-  // that animation finishes — but only while the input still has focus, so we
-  // never yank the page out from under someone who has clicked away.
-  const greeting = document.getElementById("hero-greeting");
-  greeting?.addEventListener("transitionend", (e) => {
-    if (e.propertyName !== "max-height") return;
-    if (document.activeElement !== input) return;
-    // Only correct a drift worth correcting. A second animation chasing a
-    // 20px difference is what makes this feel jittery rather than smooth.
-    const box = composer.getBoundingClientRect();
-    const drift = box.top + box.height / 2 - window.innerHeight / 2;
-    if (Math.abs(drift) < 60) return;
-    centerComposer(300);
-  });
+  input.addEventListener("focus", () => centerSubject());
 
   // --- rendering -----------------------------------------------------------
 
@@ -414,6 +427,9 @@ window.addEventListener("scroll", () => {
 
     const typing = addTyping();
     setBusy(true);
+    // The transcript just appeared, so the subject changes from the composer to
+    // the conversation. Re-centre on that instead.
+    centerSubject();
 
     let bubble = null;
     let answer = "";
