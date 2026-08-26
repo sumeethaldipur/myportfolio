@@ -12,7 +12,7 @@ sumeethaldipur.github.io/myportfolio        (GitHub Pages — unchanged)
 Vercel serverless function                   (NVIDIA_API_KEY lives here)
         │
         ▼
-NVIDIA NIM  →  deepseek-ai/deepseek-v4-flash-0731
+NVIDIA NIM  →  nvidia/nemotron-3-ultra-550b-a55b
 ```
 
 Your API key is only ever an environment variable on Vercel. It is never in
@@ -133,7 +133,7 @@ Dongri to Degree, and AIESEC (Jan–Jul 2021).
 
 ## Cost
 
-`deepseek-ai/deepseek-v4-flash-0731` runs on NVIDIA NIM's free developer tier, so
+`nvidia/nemotron-3-ultra-550b-a55b` runs on NVIDIA NIM's free developer tier, so
 there's no per-token bill and no payment method to attach. That's the whole
 reason for this setup.
 
@@ -146,8 +146,8 @@ The tradeoffs versus a paid API:
 - **No prompt caching.** The full profile (~2,500 tokens) is re-read on every
   request. Free, but it means latency scales with profile length — worth knowing
   before you make `profile.md` enormous.
-- **Reasoning is switched off** (`chat_template_kwargs: {thinking: false}`).
-  DeepSeek V4 is a reasoning model; for resume Q&A the thinking pass adds
+- **Reasoning is switched off** (`chat_template_kwargs: {enable_thinking: false}`).
+  Nemotron 3 Ultra is a reasoning model; for resume Q&A the thinking pass adds
   seconds of latency without improving answers.
 
 ## Guardrails already in place

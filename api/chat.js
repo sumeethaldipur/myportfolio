@@ -21,11 +21,19 @@ const ALLOWED_ORIGINS = new Set([
 // just repoint it. Note NIM implements *Chat Completions*, not the newer
 // Responses API — hence `chat.completions.create` below.
 const NIM_BASE_URL = "https://integrate.api.nvidia.com/v1";
-// deepseek-v4-pro was retired 2026-08-07 and now returns 410 Gone. Flash is the
-// live V4 variant and is the better fit anyway — lower latency for short
-// answers. To check what's currently served (no API key needed):
+// Model history, so nobody re-treads this:
+//   deepseek-v4-pro         → 410 Gone, retired 2026-08-07
+//   deepseek-v4-flash-0731  → 404, in the public catalog but not granted to
+//                             this account
+// NVIDIA's own Nemotron models are the safest bet on NVIDIA's own platform.
+// To check what's currently served (no API key needed):
 //   curl https://integrate.api.nvidia.com/v1/models
-const MODEL = "deepseek-ai/deepseek-v4-flash-0731";
+const MODEL = "nvidia/nemotron-3-ultra-550b-a55b";
+
+// Reasoning is toggled by a chat-template kwarg whose NAME VARIES BY MODEL
+// FAMILY: DeepSeek V4 uses `thinking`, Nemotron 3 uses `enable_thinking`.
+// Keep this next to MODEL so the two stay in sync when the model changes.
+const NO_THINKING_KWARGS = { enable_thinking: false };
 const MAX_OUTPUT_TOKENS = 1200; // answers should be short; this is a hard ceiling
 const MAX_MESSAGE_CHARS = 1000; // per user message
 const MAX_HISTORY = 12; // turns kept, oldest trimmed first
@@ -225,16 +233,16 @@ export default async function handler(req, res) {
       stream: true,
     };
 
-    // DeepSeek V4 is a reasoning model. Thinking is off because this is a chat
-    // bubble answering resume questions — reasoning would add seconds of
-    // latency for no gain in answer quality. This kwarg is documented for V4
-    // Pro; if Flash rejects it, fall back to a plain request rather than
-    // failing the whole turn over a performance tweak.
+    // Nemotron 3 Ultra is a reasoning model. Thinking is off because this is a
+    // chat bubble answering resume questions — reasoning would add seconds of
+    // latency for no gain in answer quality. If the model rejects the kwarg,
+    // fall back to a plain request rather than failing the whole turn over a
+    // performance tweak.
     let stream;
     try {
       stream = await getClient().chat.completions.create({
         ...request,
-        chat_template_kwargs: { thinking: false },
+        chat_template_kwargs: NO_THINKING_KWARGS,
       });
     } catch (err) {
       if (err?.status !== 400) throw err;
