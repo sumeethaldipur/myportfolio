@@ -245,6 +245,29 @@ window.addEventListener("scroll", () => {
   }
   input.addEventListener("input", syncEngaged);
 
+  // Bring the composer to the middle of the screen when it's focused. Without
+  // this the greeting collapses around the visitor while the page stays put,
+  // so the input appears to jump rather than the view following it.
+  const composer = form;
+  function centerComposer() {
+    composer.scrollIntoView({
+      block: "center",
+      inline: "nearest",
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }
+  input.addEventListener("focus", centerComposer);
+
+  // The greeting collapse moves the composer after focus, so re-centre once
+  // that animation finishes — but only while the input still has focus, so we
+  // never yank the page out from under someone who has clicked away.
+  const greeting = document.getElementById("hero-greeting");
+  greeting?.addEventListener("transitionend", (e) => {
+    if (e.propertyName !== "max-height") return;
+    if (document.activeElement !== input) return;
+    centerComposer();
+  });
+
   // --- rendering -----------------------------------------------------------
 
   const escapeHtml = (s) =>
