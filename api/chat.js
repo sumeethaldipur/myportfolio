@@ -21,7 +21,11 @@ const ALLOWED_ORIGINS = new Set([
 // just repoint it. Note NIM implements *Chat Completions*, not the newer
 // Responses API — hence `chat.completions.create` below.
 const NIM_BASE_URL = "https://integrate.api.nvidia.com/v1";
-const MODEL = "deepseek-ai/deepseek-v4-pro";
+// deepseek-v4-pro was retired 2026-08-07 and now returns 410 Gone. Flash is the
+// live V4 variant and is the better fit anyway — lower latency for short
+// answers. To check what's currently served (no API key needed):
+//   curl https://integrate.api.nvidia.com/v1/models
+const MODEL = "deepseek-ai/deepseek-v4-flash-0731";
 const MAX_OUTPUT_TOKENS = 1200; // answers should be short; this is a hard ceiling
 const MAX_MESSAGE_CHARS = 1000; // per user message
 const MAX_HISTORY = 12; // turns kept, oldest trimmed first
@@ -81,13 +85,17 @@ ${KNOWLEDGE}`;
 // the API key is missing, and a throw during module load crashes the whole
 // function with an opaque FUNCTION_INVOCATION_FAILED before the handler can
 // report anything useful. Deferring it lets us return a readable error.
+// Accept the common misspelling as a fallback. NVIDEA/NVIDIA is an easy slip,
+// and a silent `undefined` here costs a full deploy cycle to diagnose.
+// Preferred name is NVIDIA_API_KEY — clean the alias up once things are stable.
+function apiKey() {
+  return process.env.NVIDIA_API_KEY || process.env.NVIDEA_API_KEY || null;
+}
+
 let _client = null;
 function getClient() {
   if (!_client) {
-    _client = new OpenAI({
-      apiKey: process.env.NVIDIA_API_KEY,
-      baseURL: NIM_BASE_URL,
-    });
+    _client = new OpenAI({ apiKey: apiKey(), baseURL: NIM_BASE_URL });
   }
   return _client;
 }
@@ -152,11 +160,18 @@ export default async function handler(req, res) {
   if (!KNOWLEDGE) {
     return res.status(500).json({ error: "Knowledge base failed to load." });
   }
-  if (!process.env.NVIDIA_API_KEY) {
-    console.error("NVIDIA_API_KEY is not set in this deployment.");
+  if (!apiKey()) {
+    // TEMPORARY: report which key-ish variable NAMES the function can actually
+    // see. Names only — never values — so this leaks nothing, but it turns
+    // "missing" into "here is what is actually set". Remove once working.
+    const visible = Object.keys(process.env)
+      .filter((k) => /NVID|API|KEY|TOKEN/i.test(k))
+      .sort();
+    console.error("No API key found. Key-ish env var names:", visible);
     return res.status(500).json({
       error:
-        "The assistant isn't configured yet. (NVIDIA_API_KEY missing on the server.)",
+        "The assistant isn't configured yet. (No NVIDIA API key visible to the server.)",
+      visibleEnvNames: visible,
     });
   }
 
@@ -196,7 +211,7 @@ export default async function handler(req, res) {
     // request, so OpenAI's automatic prompt caching kicks in (prompts over
     // ~1024 tokens) and those input tokens bill at a discount. No explicit
     // cache configuration needed.
-    const stream = await getClient().chat.completions.create({
+    const request = {
       model: MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -207,12 +222,25 @@ export default async function handler(req, res) {
       // here means inventing things, which is the exact failure to avoid.
       temperature: 0.2,
       top_p: 0.9,
-      // DeepSeek V4 Pro is a reasoning model. Thinking is off because this is a
-      // chat bubble answering resume questions — reasoning would add seconds of
-      // latency and burn tokens for no gain in answer quality.
-      chat_template_kwargs: { thinking: false },
       stream: true,
-    });
+    };
+
+    // DeepSeek V4 is a reasoning model. Thinking is off because this is a chat
+    // bubble answering resume questions — reasoning would add seconds of
+    // latency for no gain in answer quality. This kwarg is documented for V4
+    // Pro; if Flash rejects it, fall back to a plain request rather than
+    // failing the whole turn over a performance tweak.
+    let stream;
+    try {
+      stream = await getClient().chat.completions.create({
+        ...request,
+        chat_template_kwargs: { thinking: false },
+      });
+    } catch (err) {
+      if (err?.status !== 400) throw err;
+      console.warn("chat_template_kwargs rejected; retrying without it.");
+      stream = await getClient().chat.completions.create(request);
+    }
 
     for await (const chunk of stream) {
       // Read only `content`. With thinking enabled the model also emits

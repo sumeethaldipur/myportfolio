@@ -12,7 +12,7 @@ sumeethaldipur.github.io/myportfolio        (GitHub Pages — unchanged)
 Vercel serverless function                   (NVIDIA_API_KEY lives here)
         │
         ▼
-NVIDIA NIM  →  deepseek-ai/deepseek-v4-pro
+NVIDIA NIM  →  deepseek-ai/deepseek-v4-flash-0731
 ```
 
 Your API key is only ever an environment variable on Vercel. It is never in
@@ -35,7 +35,7 @@ the repo and never reaches the browser.
 
 ## Step 1 — Get an NVIDIA NIM API key
 
-1. Go to <https://build.nvidia.com/deepseek-ai/deepseek-v4-pro>.
+1. Go to <https://build.nvidia.com/models> and pick any model to get a key.
 2. Sign in (free NVIDIA developer account) and click **Get API Key**.
 3. Copy it — it starts `nvapi-`. You only see it once.
 4. Paste it *only* into Vercel's environment-variable field in Step 3. Never
@@ -133,7 +133,7 @@ Dongri to Degree, and AIESEC (Jan–Jul 2021).
 
 ## Cost
 
-`deepseek-ai/deepseek-v4-pro` runs on NVIDIA NIM's free developer tier, so
+`deepseek-ai/deepseek-v4-flash-0731` runs on NVIDIA NIM's free developer tier, so
 there's no per-token bill and no payment method to attach. That's the whole
 reason for this setup.
 
@@ -147,7 +147,7 @@ The tradeoffs versus a paid API:
   request. Free, but it means latency scales with profile length — worth knowing
   before you make `profile.md` enormous.
 - **Reasoning is switched off** (`chat_template_kwargs: {thinking: false}`).
-  DeepSeek V4 Pro is a reasoning model; for resume Q&A the thinking pass adds
+  DeepSeek V4 is a reasoning model; for resume Q&A the thinking pass adds
   seconds of latency without improving answers.
 
 ## Guardrails already in place
@@ -185,7 +185,8 @@ function too, install Node, then `npx vercel dev`.
 | "The assistant isn't configured yet" | `NVIDIA_API_KEY` not set. Same fix, clearer message. |
 | 429 on every request | NIM free-tier rate limit or credits exhausted. |
 | 401 in the Vercel logs | `nvapi-` key is wrong, or was revoked. |
-| 404 naming the model | Model ID changed on build.nvidia.com — check the page. |
+| 410 Gone naming the model | NVIDIA retired that model. List live ones with `curl https://integrate.api.nvidia.com/v1/models` (no key needed) and update `MODEL` in `api/chat.js`. |
+| 404 naming the model | Model ID is wrong — same check as above. |
 | Bot invents things | Add the fact to `profile.md` — it only knows that file. |
 
 ### Reading the real error
