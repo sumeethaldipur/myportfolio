@@ -204,15 +204,12 @@ window.addEventListener("scroll", () => {
   navLinks.forEach((l, i) => { l.style.color = i === activeIdx ? "var(--text)" : ""; });
 });
 
-// ---------- Ask-me-anything chatbot ----------
+
+// ---------- Hero chat ----------
 (function () {
-  // NEVER put the API key here — this file is downloaded by every visitor and
-  // is readable via view-source. Only the public URL of the function goes in
-  // the browser; the key lives as an environment variable on Vercel.
-  //
-  // When the page is served from Vercel (or localhost) the function is on the
-  // same origin, so a relative path works and CORS never enters the picture.
-  // Served from GitHub Pages, it's a different origin and needs the full URL.
+  // Served from Vercel (or localhost) the function is same-origin, so a
+  // relative path works and CORS never applies. From GitHub Pages it's a
+  // different origin and needs the absolute URL.
   const VERCEL_API = "https://myportfolio-murex-six-91.vercel.app/api/chat";
   const sameOrigin =
     location.hostname.endsWith(".vercel.app") ||
@@ -220,24 +217,33 @@ window.addEventListener("scroll", () => {
     location.hostname === "127.0.0.1";
   const API_URL = sameOrigin ? "/api/chat" : VERCEL_API;
 
-  const fab = document.getElementById("chat-fab");
-  const panel = document.getElementById("chat-panel");
-  const closeBtn = document.getElementById("chat-close");
   const log = document.getElementById("chat-log");
   const form = document.getElementById("chat-form");
   const input = document.getElementById("chat-input");
   const sendBtn = document.getElementById("chat-send");
   const suggestions = document.getElementById("chat-suggestions");
+  const resetBtn = document.getElementById("chat-reset");
+  const fab = document.getElementById("chat-fab");
+  const heroChat = document.querySelector(".hero-chat");
 
-  if (!fab || !panel || !form || !input || !log) return;
+  if (!form || !input || !log) return;
 
-  const GREETING =
-    "Hey! I'm Sumeet's assistant — I know his work history, projects, and what he's looking for. Ask away.";
-
-  // Conversation history sent to the API. Trimmed server-side too.
   let history = [];
   let busy = false;
-  let started = false;
+  let started = false; // true once a question has actually been sent
+
+  // --- greeting engage/disengage ------------------------------------------
+
+  // The greeting clears as soon as there's something to say — matching the way
+  // Claude's greeting steps aside when you start typing. If the visitor clears
+  // the box before ever sending, it comes back.
+  function setEngaged(on) {
+    document.body.classList.toggle("chat-engaged", on);
+  }
+  function syncEngaged() {
+    setEngaged(started || input.value.trim().length > 0);
+  }
+  input.addEventListener("input", syncEngaged);
 
   // --- rendering -----------------------------------------------------------
 
@@ -246,8 +252,8 @@ window.addEventListener("scroll", () => {
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
     })[c]);
 
-  // Minimal markdown: bold, inline code, links, paragraphs. Everything is
-  // escaped first, so model output can never inject markup.
+  // Minimal markdown. Everything is escaped first, so model output can never
+  // inject markup into the page.
   function renderMarkdown(text) {
     return escapeHtml(text)
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
@@ -273,19 +279,18 @@ window.addEventListener("scroll", () => {
   }
 
   function addMessage(role, text) {
+    log.hidden = false;
     const el = document.createElement("div");
     el.className = `chat-msg ${role}`;
-    if (role === "user") {
-      el.textContent = text;
-    } else {
-      el.innerHTML = renderMarkdown(text);
-    }
+    if (role === "user") el.textContent = text;
+    else el.innerHTML = renderMarkdown(text);
     log.appendChild(el);
     scrollDown(true);
     return el;
   }
 
   function addTyping() {
+    log.hidden = false;
     const el = document.createElement("div");
     el.className = "chat-msg bot";
     el.innerHTML =
@@ -295,36 +300,19 @@ window.addEventListener("scroll", () => {
     return el;
   }
 
-  // --- open / close --------------------------------------------------------
+  // --- reset ---------------------------------------------------------------
 
-  function openChat() {
-    panel.hidden = false;
-    fab.hidden = true;
-    // Force a reflow so the transition has a start value, then reveal
-    // synchronously. requestAnimationFrame is throttled in background tabs,
-    // which would leave the panel invisible but still swallowing clicks.
-    void panel.offsetWidth;
-    panel.classList.add("open");
-    if (!started) {
-      started = true;
-      addMessage("bot", GREETING);
-    }
-    setTimeout(() => input.focus(), 260);
-  }
-
-  function closeChat() {
-    panel.classList.remove("open");
-    fab.hidden = false;
-    setTimeout(() => {
-      panel.hidden = true;
-    }, 280);
-    fab.focus();
-  }
-
-  fab.addEventListener("click", openChat);
-  closeBtn?.addEventListener("click", closeChat);
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && panel.classList.contains("open")) closeChat();
+  resetBtn?.addEventListener("click", () => {
+    if (busy) return;
+    history = [];
+    started = false;
+    log.innerHTML = "";
+    log.hidden = true;
+    resetBtn.hidden = true;
+    if (suggestions) suggestions.hidden = false;
+    input.value = "";
+    syncEngaged();
+    input.focus();
   });
 
   suggestions?.addEventListener("click", (e) => {
@@ -343,9 +331,12 @@ window.addEventListener("scroll", () => {
   }
 
   async function send(question) {
+    started = true;
+    setEngaged(true);
     addMessage("user", question);
     history.push({ role: "user", content: question });
     if (suggestions) suggestions.hidden = true;
+    if (resetBtn) resetBtn.hidden = false;
 
     const typing = addTyping();
     setBusy(true);
@@ -386,7 +377,7 @@ window.addEventListener("scroll", () => {
         return;
       }
 
-      // Parse the SSE stream: events are separated by a blank line.
+      // Parse the SSE stream: frames are separated by a blank line.
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -436,7 +427,6 @@ window.addEventListener("scroll", () => {
       );
     } finally {
       setBusy(false);
-      // Keep only the last 12 turns client-side as well.
       if (history.length > 12) history = history.slice(-12);
       input.focus();
     }
@@ -449,4 +439,23 @@ window.addEventListener("scroll", () => {
     input.value = "";
     send(question);
   });
+
+  // --- scroll-back button --------------------------------------------------
+
+  // There's only ever one conversation. Once the hero scrolls away the button
+  // brings the visitor back to it rather than opening a second copy.
+  if (fab && heroChat) {
+    fab.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => input.focus(), 500);
+    });
+
+    const fabObserver = new IntersectionObserver(
+      ([entry]) => {
+        fab.hidden = entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    fabObserver.observe(heroChat);
+  }
 })();
