@@ -9,10 +9,10 @@ sumeethaldipur.github.io/myportfolio        (GitHub Pages — unchanged)
         │
         │  POST https://<your-project>.vercel.app/api/chat
         ▼
-Vercel serverless function                   (OPENAI_API_KEY lives here)
+Vercel serverless function                   (NVIDIA_API_KEY lives here)
         │
         ▼
-OpenAI API (gpt-5.6-luna)
+NVIDIA NIM  →  deepseek-ai/deepseek-v4-pro
 ```
 
 Your API key is only ever an environment variable on Vercel. It is never in
@@ -24,7 +24,7 @@ the repo and never reaches the browser.
 |---|---|
 | `data/profile.md` | The bot's entire knowledge base. **This is the file you edit.** |
 | `api/chat.js` | Serverless function: prompt, CORS, rate limit, streaming. |
-| `package.json` | Declares the `openai` dependency for Vercel. |
+| `package.json` | Declares the `openai` dependency (NIM is OpenAI-compatible). |
 | `vercel.json` | Bundles `data/` with the function; 30s max duration. |
 | `.nojekyll` | Stops GitHub Pages running Jekyll over the new folders. |
 | `index.html` | Chat launcher + panel markup, before `</body>`. |
@@ -33,19 +33,20 @@ the repo and never reaches the browser.
 
 ---
 
-## Step 1 — Get a fresh API key
+## Step 1 — Get an NVIDIA NIM API key
 
-Your previous key was pasted into a chat and must be treated as compromised.
-
-1. Go to <https://platform.openai.com/api-keys>.
-2. **Delete** the existing key — the console lists each key by its prefix and
-   last-used date, so match it there.
-3. **Create new secret key.** Copy it. You only see it once.
+1. Go to <https://build.nvidia.com/deepseek-ai/deepseek-v4-pro>.
+2. Sign in (free NVIDIA developer account) and click **Get API Key**.
+3. Copy it — it starts `nvapi-`. You only see it once.
 4. Paste it *only* into Vercel's environment-variable field in Step 3. Never
    into a file, a commit, or a chat window.
 
-Also confirm you have credit at <https://platform.openai.com/settings/organization/billing>.
-A new key with a $0 balance returns 429 on every request.
+NVIDIA grants free credits for personal use, which is why we're here — no
+payment method required to start.
+
+> **Still outstanding:** the OpenAI key you pasted into chat earlier should be
+> revoked at <https://platform.openai.com/api-keys> even though we no longer use
+> it. A leaked key is a liability whether or not your code calls it.
 
 ## Step 2 — Push this folder to GitHub
 
@@ -63,35 +64,32 @@ Then add your remote and push to the branch GitHub Pages serves.
 1. <https://vercel.com/new> → sign in with GitHub → import the repo.
 2. Framework preset: **Other**. Leave build settings empty — there's no build.
 3. Before deploying, open **Environment Variables** and add:
-   - Name: `OPENAI_API_KEY`
-   - Value: your new `sk-proj-…` key
+   - Name: `NVIDIA_API_KEY`
+   - Value: your `nvapi-…` key
+   - Environments: tick **Production, Preview, and Development**
 4. **Deploy.** You'll get a URL like `https://myportfolio-abc123.vercel.app`.
 
 Vercel installs the `openai` package itself — you don't need Node locally.
+NIM speaks the OpenAI wire format, so the same SDK works unchanged.
 (You don't currently have `node` or `npm` on this machine, which is fine for
 deploying; you'd only need them for `vercel dev`.)
 
 ## Step 4 — Point the site at your function
 
-In [`galaxy.js`](galaxy.js), find `REPLACE-ME` near the bottom and swap in your
-real Vercel URL:
-
-```js
-: "https://myportfolio-abc123.vercel.app/api/chat";
-```
-
-Then confirm your Pages origin is allowed in [`api/chat.js`](api/chat.js):
+**Already done.** [`galaxy.js`](galaxy.js) holds your real Vercel URL, and
+[`api/chat.js`](api/chat.js) allowlists both origins:
 
 ```js
 const ALLOWED_ORIGINS = new Set([
-  "https://sumeethaldipur.github.io",   // already set for you
+  "https://myportfolio-murex-six-91.vercel.app",
+  "https://sumeethaldipur.github.io",
 ]);
 ```
 
-If you later move to a custom domain, add it to that list — a missing origin
-is the most common cause of "it works locally but not live."
-
-Commit and push. Pages redeploys the site, Vercel redeploys the function.
+The client detects which origin it's running on: served from Vercel it calls
+`/api/chat` same-origin (no CORS at all), served from GitHub Pages it uses the
+full URL. If you later add a custom domain, add it to that Set — a missing
+origin is the most common cause of "it works locally but not live."
 
 ## Step 5 — Fill in your voice
 
@@ -135,18 +133,22 @@ Dongri to Degree, and AIESEC (Jan–Jul 2021).
 
 ## Cost
 
-`gpt-5.6-luna` costs **$0.20 per million input tokens** and **$1.20 per million
-output tokens**. Every request sends the whole profile (~2,500 tokens) as the
-`instructions` field, which is byte-identical each time, so OpenAI's automatic
-prompt caching discounts it after the first call.
+`deepseek-ai/deepseek-v4-pro` runs on NVIDIA NIM's free developer tier, so
+there's no per-token bill and no payment method to attach. That's the whole
+reason for this setup.
 
-A typical exchange costs well under a tenth of a cent. Realistically you will
-spend more on the domain than on the bot — a few hundred conversations a month
-is pocket change.
+The tradeoffs versus a paid API:
 
-Set a spend cap anyway at
-<https://platform.openai.com/settings/organization/limits>. It's the only hard
-backstop if someone hammers the endpoint.
+- **Rate limits are the constraint, not money.** Free-tier credits are finite
+  and refresh periodically. A portfolio bot won't come close in normal use, but
+  a burst of traffic can hit the ceiling — the endpoint returns 429 and the chat
+  shows a friendly retry message.
+- **No prompt caching.** The full profile (~2,500 tokens) is re-read on every
+  request. Free, but it means latency scales with profile length — worth knowing
+  before you make `profile.md` enormous.
+- **Reasoning is switched off** (`chat_template_kwargs: {thinking: false}`).
+  DeepSeek V4 Pro is a reasoning model; for resume Q&A the thinking pass adds
+  seconds of latency without improving answers.
 
 ## Guardrails already in place
 
@@ -177,12 +179,13 @@ function too, install Node, then `npx vercel dev`.
 
 | Symptom | Cause |
 |---|---|
-| `FUNCTION_INVOCATION_FAILED` (500 even on OPTIONS) | The function crashed at import. Almost always `OPENAI_API_KEY` missing — set it in Vercel and redeploy. |
+| `FUNCTION_INVOCATION_FAILED` (500 even on OPTIONS) | The function crashed at import. Almost always `NVIDIA_API_KEY` missing — set it in Vercel and redeploy. |
 | CORS error in console | Your origin isn't in `ALLOWED_ORIGINS`. |
 | "Knowledge base failed to load" | `includeFiles` missing from `vercel.json`. |
-| "The assistant isn't configured yet" | `OPENAI_API_KEY` not set. Same fix, clearer message. |
-| 429 on every request | No credit on the OpenAI account. |
-| 401 in the Vercel logs | Key is wrong, or was revoked. |
+| "The assistant isn't configured yet" | `NVIDIA_API_KEY` not set. Same fix, clearer message. |
+| 429 on every request | NIM free-tier rate limit or credits exhausted. |
+| 401 in the Vercel logs | `nvapi-` key is wrong, or was revoked. |
+| 404 naming the model | Model ID changed on build.nvidia.com — check the page. |
 | Bot invents things | Add the fact to `profile.md` — it only knows that file. |
 
 ### Reading the real error

@@ -17,10 +17,11 @@ const ALLOWED_ORIGINS = new Set([
   "http://localhost:3000",
 ]);
 
-// gpt-5.6-luna is the cost-optimised model in the GPT-5.6 family
-// ($0.20/$1.20 per million tokens) — ample for answering questions about a
-// resume, and cheap enough that traffic spikes won't hurt.
-const MODEL = "gpt-5.6-luna";
+// NVIDIA NIM exposes an OpenAI-compatible API, so we keep the `openai` SDK and
+// just repoint it. Note NIM implements *Chat Completions*, not the newer
+// Responses API — hence `chat.completions.create` below.
+const NIM_BASE_URL = "https://integrate.api.nvidia.com/v1";
+const MODEL = "deepseek-ai/deepseek-v4-pro";
 const MAX_OUTPUT_TOKENS = 1200; // answers should be short; this is a hard ceiling
 const MAX_MESSAGE_CHARS = 1000; // per user message
 const MAX_HISTORY = 12; // turns kept, oldest trimmed first
@@ -77,12 +78,17 @@ You exist to talk about Sumeet's work, background, and availability. If asked to
 ${KNOWLEDGE}`;
 
 // Built lazily on first request, NOT at module scope: the SDK throws when
-// OPENAI_API_KEY is missing, and a throw during module load crashes the whole
+// the API key is missing, and a throw during module load crashes the whole
 // function with an opaque FUNCTION_INVOCATION_FAILED before the handler can
 // report anything useful. Deferring it lets us return a readable error.
 let _client = null;
 function getClient() {
-  if (!_client) _client = new OpenAI(); // reads OPENAI_API_KEY from the environment
+  if (!_client) {
+    _client = new OpenAI({
+      apiKey: process.env.NVIDIA_API_KEY,
+      baseURL: NIM_BASE_URL,
+    });
+  }
   return _client;
 }
 
@@ -146,11 +152,11 @@ export default async function handler(req, res) {
   if (!KNOWLEDGE) {
     return res.status(500).json({ error: "Knowledge base failed to load." });
   }
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("OPENAI_API_KEY is not set in this deployment.");
+  if (!process.env.NVIDIA_API_KEY) {
+    console.error("NVIDIA_API_KEY is not set in this deployment.");
     return res.status(500).json({
       error:
-        "The assistant isn't configured yet. (OPENAI_API_KEY missing on the server.)",
+        "The assistant isn't configured yet. (NVIDIA_API_KEY missing on the server.)",
     });
   }
 
@@ -190,26 +196,36 @@ export default async function handler(req, res) {
     // request, so OpenAI's automatic prompt caching kicks in (prompts over
     // ~1024 tokens) and those input tokens bill at a discount. No explicit
     // cache configuration needed.
-    const stream = getClient().responses.stream({
+    const stream = await getClient().chat.completions.create({
       model: MODEL,
-      instructions: SYSTEM_PROMPT,
-      input: messages.map((m) => ({ role: m.role, content: m.content })),
-      max_output_tokens: MAX_OUTPUT_TOKENS,
-      // Keep latency low — this is a chat bubble, not a research task.
-      reasoning: { effort: "low" },
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+      ],
+      max_tokens: MAX_OUTPUT_TOKENS,
+      // Low temperature: this bot recites facts from a profile. "Creativity"
+      // here means inventing things, which is the exact failure to avoid.
+      temperature: 0.2,
+      top_p: 0.9,
+      // DeepSeek V4 Pro is a reasoning model. Thinking is off because this is a
+      // chat bubble answering resume questions — reasoning would add seconds of
+      // latency and burn tokens for no gain in answer quality.
+      chat_template_kwargs: { thinking: false },
+      stream: true,
     });
 
-    for await (const event of stream) {
-      if (event.type === "response.output_text.delta" && event.delta) {
-        send("delta", { text: event.delta });
-      }
+    for await (const chunk of stream) {
+      // Read only `content`. With thinking enabled the model also emits
+      // `reasoning_content` on the delta, which must never reach a visitor.
+      const text = chunk.choices?.[0]?.delta?.content;
+      if (text) send("delta", { text });
     }
 
     send("done", {});
     res.end();
   } catch (err) {
     // Log the full detail for the Vercel dashboard.
-    console.error("OpenAI API error:", {
+    console.error("NIM API error:", {
       name: err?.name,
       status: err?.status,
       code: err?.code,
@@ -230,14 +246,14 @@ export default async function handler(req, res) {
     const status = err?.status;
     let message;
     if (status === 401) {
-      message = "The assistant's API key is invalid or was revoked.";
+      message = "The assistant's NVIDIA API key is invalid or was revoked.";
     } else if (status === 403) {
       message = "This API key doesn't have access to the configured model.";
     } else if (status === 404) {
       message = `Model "${MODEL}" isn't available to this account.`;
     } else if (status === 429) {
       message =
-        "Out of OpenAI credit, or too many requests. Check billing at platform.openai.com.";
+        "Out of NVIDIA NIM credits, or too many requests. Check build.nvidia.com.";
     } else if (status === 400) {
       message = `Bad request to the model API: ${err?.message ?? "unknown"}`;
     } else {
@@ -245,7 +261,19 @@ export default async function handler(req, res) {
         "Something went wrong on my end. Email sumeethaldipur.work@gmail.com and Sumeet will answer directly.";
     }
 
-    send("error", { message, status: status ?? null });
+    // TEMPORARY diagnostics. A null `status` means the failure never reached
+    // the OpenAI API (it's a client/runtime error, not an HTTP rejection), and
+    // the status code alone can't distinguish those. Remove `debug` once the
+    // deployment is working — see the NOTE above.
+    send("error", {
+      message,
+      status: status ?? null,
+      debug: {
+        name: err?.name ?? null,
+        code: err?.code ?? null,
+        message: String(err?.message ?? "").slice(0, 300),
+      },
+    });
     send("done", {});
     res.end();
   }
