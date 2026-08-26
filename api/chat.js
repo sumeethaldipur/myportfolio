@@ -22,18 +22,22 @@ const ALLOWED_ORIGINS = new Set([
 // Responses API — hence `chat.completions.create` below.
 const NIM_BASE_URL = "https://integrate.api.nvidia.com/v1";
 // Model history, so nobody re-treads this:
-//   deepseek-v4-pro         → 410 Gone, retired 2026-08-07
-//   deepseek-v4-flash-0731  → 404, in the public catalog but not granted to
-//                             this account
-// NVIDIA's own Nemotron models are the safest bet on NVIDIA's own platform.
+//   deepseek-v4-pro              → 410 Gone, retired 2026-08-07
+//   deepseek-v4-flash-0731       → 404 on first attempt ("function not found
+//                                  in account"): listed in the public catalog
+//                                  but not granted to the key in use. A key
+//                                  generated from that model's own page on
+//                                  build.nvidia.com is what grants access.
+//   nvidia/nemotron-3-ultra-...  → worked, but verbose
 // To check what's currently served (no API key needed):
 //   curl https://integrate.api.nvidia.com/v1/models
-const MODEL = "nvidia/nemotron-3-ultra-550b-a55b";
+const MODEL = "deepseek-ai/deepseek-v4-flash-0731";
 
 // Reasoning is toggled by a chat-template kwarg whose NAME VARIES BY MODEL
 // FAMILY: DeepSeek V4 uses `thinking`, Nemotron 3 uses `enable_thinking`.
-// Keep this next to MODEL so the two stay in sync when the model changes.
-const NO_THINKING_KWARGS = { enable_thinking: false };
+// Sending the wrong one doesn't error — it's silently ignored and reasoning
+// stays ON, costing latency. Keep this next to MODEL so they stay in sync.
+const NO_THINKING_KWARGS = { thinking: false };
 // Answer length is shaped by the prompt (see TARGET_REPLY_CHARS below), not by
 // this ceiling. max_tokens is only a backstop against a runaway generation, so
 // it sits well above the target — cutting a reply off mid-sentence looks worse
