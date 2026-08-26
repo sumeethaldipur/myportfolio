@@ -1289,3 +1289,91 @@ body.chat-engaged .hero {
   padding-bottom: 48px;
   transition: min-height 0.45s ease, padding 0.45s ease;
 }
+
+/* ---------------------------------------------------------------------------
+   Chat emphasis — draw the eye to the composer
+   --------------------------------------------------------------------------- */
+
+/* ---------- Spotlight the chat ---------- */
+
+.hero-chat {
+  position: relative;
+  width: min(760px, 100%);
+}
+
+/* A soft pool of light behind the conversation. Does the work the orbit rings
+   used to do — draws the eye to the centre — without any moving parts. */
+.hero-chat::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: 150%;
+  height: 190%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(167, 139, 250, 0.17) 0%,
+    rgba(103, 232, 249, 0.08) 35%,
+    transparent 70%
+  );
+  transition: opacity 0.5s ease;
+}
+[data-theme="light"] .hero-chat::before {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(109, 40, 217, 0.11) 0%,
+    rgba(8, 145, 178, 0.06) 35%,
+    transparent 70%
+  );
+}
+body.chat-engaged .hero-chat::before { opacity: 1.25; }
+
+/* ---------- A composer with more presence ---------- */
+
+.composer {
+  padding: 9px 9px 9px 26px;
+  border-width: 1.5px;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  box-shadow: 0 18px 50px -18px rgba(167, 139, 250, 0.55),
+    0 0 0 1px rgba(167, 139, 250, 0.1) inset;
+}
+[data-theme="light"] .composer {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 50px -20px rgba(109, 40, 217, 0.35),
+    0 0 0 1px rgba(109, 40, 217, 0.06) inset;
+}
+.composer:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 22px 60px -18px rgba(167, 139, 250, 0.7),
+    0 0 0 4px rgba(167, 139, 250, 0.18);
+}
+[data-theme="light"] .composer:focus-within {
+  box-shadow: 0 22px 60px -20px rgba(109, 40, 217, 0.4),
+    0 0 0 4px rgba(109, 40, 217, 0.14);
+}
+.composer input {
+  font-size: 1.08rem;
+  padding: 16px 0;
+}
+.composer button { width: 50px; height: 50px; }
+
+/* Bot replies read as a calm sheet rather than another glassy card. */
+.chat-msg.bot {
+  background: var(--surface-strong);
+  border-color: var(--border);
+}
+
+@media (max-width: 640px) {
+  .composer { padding-left: 20px; }
+  .composer input { font-size: 1rem; padding: 13px 0; }
+  .composer button { width: 44px; height: 44px; }
+  .hero-chat::before { width: 130%; height: 160%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-chat::before { transition: none; }
+}

@@ -34,8 +34,14 @@ const MODEL = "nvidia/nemotron-3-ultra-550b-a55b";
 // FAMILY: DeepSeek V4 uses `thinking`, Nemotron 3 uses `enable_thinking`.
 // Keep this next to MODEL so the two stay in sync when the model changes.
 const NO_THINKING_KWARGS = { enable_thinking: false };
-const MAX_OUTPUT_TOKENS = 1200; // answers should be short; this is a hard ceiling
-const MAX_MESSAGE_CHARS = 1000; // per user message
+// Answer length is shaped by the prompt (see TARGET_REPLY_CHARS below), not by
+// this ceiling. max_tokens is only a backstop against a runaway generation, so
+// it sits well above the target — cutting a reply off mid-sentence looks worse
+// than one that runs slightly long.
+const MAX_OUTPUT_TOKENS = 600;
+const TARGET_REPLY_CHARS = 1000; // what the model is asked to stay under
+const MAX_USER_CHARS = 1000; // what a visitor may type
+const MAX_REPLAY_CHARS = 20000; // sanity bound on replayed assistant turns
 const MAX_HISTORY = 12; // turns kept, oldest trimmed first
 
 // Crude per-instance rate limit. Serverless instances are ephemeral and there
@@ -72,6 +78,12 @@ Everything you know about Sumeet is in the PROFILE below. It is your only source
 4. Respect the "Boundaries" section. Decline those topics warmly in one sentence and redirect to email. Don't lecture.
 5. Refer to Sumeet in the third person — "Sumeet did X", never "I did X". You are his assistant, not him.
 6. Use they/them for any third party whose pronouns aren't stated.
+
+## Length — a hard rule
+
+Every reply must be **under ${TARGET_REPLY_CHARS} characters**. That is roughly 150 words, or a short paragraph or two. This is not a guideline; treat it as a limit you are not allowed to cross.
+
+If a question has more material than fits, give the two or three strongest points and offer to go deeper — "Want me to go into the ShareFile work specifically?" — rather than listing everything. Never dump a full role history unless asked for exactly that, and even then, stay under the limit and offer to expand.
 
 ## Style
 
@@ -132,8 +144,17 @@ function validate(messages) {
     if (typeof m.content !== "string" || m.content.trim() === "") {
       return "Invalid message content.";
     }
-    if (m.content.length > MAX_MESSAGE_CHARS) {
-      return `Message too long (max ${MAX_MESSAGE_CHARS} characters).`;
+    // The typed-input cap applies to the VISITOR only. Applying it to
+    // assistant turns too meant any reply longer than the cap failed
+    // validation on the next request, breaking every follow-up after a
+    // detailed answer.
+    if (m.role === "user" && m.content.length > MAX_USER_CHARS) {
+      return `Message too long (max ${MAX_USER_CHARS} characters).`;
+    }
+    // Assistant turns are replayed from our own output, but the client could
+    // forge them, so keep a generous sanity bound rather than none at all.
+    if (m.role === "assistant" && m.content.length > MAX_REPLAY_CHARS) {
+      return "Conversation history is malformed.";
     }
   }
   if (messages[messages.length - 1].role !== "user") {
