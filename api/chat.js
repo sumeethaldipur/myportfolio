@@ -21,23 +21,44 @@ const ALLOWED_ORIGINS = new Set([
 // just repoint it. Note NIM implements *Chat Completions*, not the newer
 // Responses API — hence `chat.completions.create` below.
 const NIM_BASE_URL = "https://integrate.api.nvidia.com/v1";
-// Model history, so nobody re-treads this:
-//   deepseek-v4-pro              → 410 Gone, retired 2026-08-07
-//   deepseek-v4-flash-0731       → 404 on first attempt ("function not found
-//                                  in account"): listed in the public catalog
-//                                  but not granted to the key in use. A key
-//                                  generated from that model's own page on
-//                                  build.nvidia.com is what grants access.
-//   nvidia/nemotron-3-ultra-...  → worked, but verbose
-// To check what's currently served (no API key needed):
+// Models on this platform disappear or turn out to be un-entitled without
+// warning, which has now cost several deploy cycles:
+//   deepseek-v4-pro         → 410 Gone, retired 2026-08-07
+//   deepseek-v4-flash-0731  → 404 "function not found in account". Listed in
+//                             the public catalog, but not served to this
+//                             account. Regenerating the key did not help; an
+//                             invalid key returns 403, so a 404 here means the
+//                             key is fine and the model simply isn't granted.
+//   nemotron-3-ultra        → works
+//
+// So rather than a single hard-coded id, try candidates in order and fall
+// through on "model unavailable" errors. First entry wins when it's available.
+// Check what's currently served (no API key needed):
 //   curl https://integrate.api.nvidia.com/v1/models
-const MODEL = "deepseek-ai/deepseek-v4-flash-0731";
+const MODEL_CANDIDATES = [
+  // Gemma 4 31B: strong instruction-following at a size that answers fast.
+  // Third-party on NVIDIA's platform, so it may be un-entitled the way
+  // DeepSeek was — which is exactly what this list is for.
+  "google/gemma-4-31b-it",
+  // Leaner and faster than Ultra — what DeepSeek Flash was wanted for.
+  "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "nvidia/nemotron-3-nano-30b-a3b",
+  // Proven working; the safety net.
+  "nvidia/nemotron-3-ultra-550b-a55b",
+];
+
+// Statuses that mean "this model isn't usable", as opposed to a real fault.
+const MODEL_UNAVAILABLE = new Set([404, 410]);
+
+// Remembered across warm invocations so we don't re-probe dead models on
+// every request.
+let resolvedModel = null;
 
 // Reasoning is toggled by a chat-template kwarg whose NAME VARIES BY MODEL
-// FAMILY: DeepSeek V4 uses `thinking`, Nemotron 3 uses `enable_thinking`.
+// FAMILY: Nemotron 3 uses `enable_thinking`, DeepSeek V4 uses `thinking`.
 // Sending the wrong one doesn't error — it's silently ignored and reasoning
-// stays ON, costing latency. Keep this next to MODEL so they stay in sync.
-const NO_THINKING_KWARGS = { thinking: false };
+// stays ON, costing latency. All candidates above are Nemotron.
+const NO_THINKING_KWARGS = { enable_thinking: false };
 // Answer length is shaped by the prompt (see TARGET_REPLY_CHARS below), not by
 // this ceiling. max_tokens is only a backstop against a runaway generation, so
 // it sits well above the target — cutting a reply off mid-sentence looks worse
@@ -233,11 +254,8 @@ export default async function handler(req, res) {
 
   try {
     // `instructions` carries the profile and is byte-identical on every
-    // request, so OpenAI's automatic prompt caching kicks in (prompts over
-    // ~1024 tokens) and those input tokens bill at a discount. No explicit
-    // cache configuration needed.
+    // `model` is supplied per-attempt by the candidate loop below.
     const request = {
-      model: MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         ...messages.map((m) => ({ role: m.role, content: m.content })),
@@ -250,22 +268,47 @@ export default async function handler(req, res) {
       stream: true,
     };
 
-    // Nemotron 3 Ultra is a reasoning model. Thinking is off because this is a
-    // chat bubble answering resume questions — reasoning would add seconds of
-    // latency for no gain in answer quality. If the model rejects the kwarg,
-    // fall back to a plain request rather than failing the whole turn over a
-    // performance tweak.
-    let stream;
-    try {
-      stream = await getClient().chat.completions.create({
-        ...request,
-        chat_template_kwargs: NO_THINKING_KWARGS,
-      });
-    } catch (err) {
-      if (err?.status !== 400) throw err;
-      console.warn("chat_template_kwargs rejected; retrying without it.");
-      stream = await getClient().chat.completions.create(request);
+    // These are reasoning models. Thinking is off because this is a chat bubble
+    // answering resume questions — reasoning would add seconds of latency for
+    // no gain in answer quality. If a model rejects the kwarg, retry plain
+    // rather than failing the turn over a performance tweak.
+    async function openStream(model) {
+      try {
+        return await getClient().chat.completions.create({
+          ...request,
+          model,
+          chat_template_kwargs: NO_THINKING_KWARGS,
+        });
+      } catch (err) {
+        if (err?.status !== 400) throw err;
+        console.warn("chat_template_kwargs rejected; retrying without it.");
+        return getClient().chat.completions.create({ ...request, model });
+      }
     }
+
+    // Try the remembered model first, then work down the candidate list,
+    // skipping any that report themselves unavailable.
+    const order = resolvedModel
+      ? [resolvedModel, ...MODEL_CANDIDATES.filter((m) => m !== resolvedModel)]
+      : MODEL_CANDIDATES;
+
+    let stream = null;
+    let lastErr = null;
+    for (const model of order) {
+      try {
+        stream = await openStream(model);
+        if (model !== resolvedModel) {
+          console.log(`Using model: ${model}`);
+          resolvedModel = model;
+        }
+        break;
+      } catch (err) {
+        if (!MODEL_UNAVAILABLE.has(err?.status)) throw err;
+        console.warn(`Model unavailable (${err.status}): ${model}`);
+        lastErr = err;
+      }
+    }
+    if (!stream) throw lastErr ?? new Error("No usable model available.");
 
     for await (const chunk of stream) {
       // Read only `content`. With thinking enabled the model also emits
