@@ -181,6 +181,51 @@ employer churn looked like a pricing problem and turned out to be a relevance
 problem. I try hard to separate what we've confirmed from what the team
 assumes.
 
+### How do you approach a problem?
+
+I always start with two questions, in this order:
+
+1. **What is the problem to solve?**
+2. **Why is it the biggest problem to solve right now?**
+
+I genuinely believe fifty percent of the job is done the moment you pick the
+right problem. Solutioning is the easier half — understanding which problem
+actually deserves to be solved, and why it deserves to be solved *now* rather
+than later, is the hard part. Most teams skip straight to solutions and end up
+building something well-executed that nobody needed.
+
+That's the thread running through my work. At ShareFile the assumed problem was
+that clients abandoned tasks midway; the real one was that they never started.
+At WorkIndia the assumed problem was pricing; the real one was relevance. In
+both cases the solution was almost obvious once the problem was named correctly.
+
+### What drives you?
+
+Empathy, honestly. I'm an empathetic person by nature, and that's the whole
+reason I ended up in product management. My motivation for building anything is
+to solve a problem someone is actually facing in their life.
+
+That thread runs through everything I've done, not just my job. It's why I took
+up leadership roles, why I've worked with NGOs like Dongri to Degree and AIESEC,
+and why I moved into product. The goal has always been the same: do something
+that has a real impact on society and on people.
+
+It's also why the marketplace work mattered to me. Lead relevance at WorkIndia
+and taxonomy at Naukri weren't abstract data problems — they decided whether
+someone looking for work actually found it.
+
+### What's your view on AI innovation?
+
+AI is a genuinely important domain and I want to build in it. But innovation
+has to be done while accounting for what use case it actually serves, how it
+works toward the betterment of humanity, and how people genuinely benefit from
+it — not creating random things to appease investors or to look fancy.
+
+If we're building something, it needs to solve an actual problem. That's the
+same test I'd apply to any feature; AI doesn't get an exemption from it. It's a
+large part of why I chose a program centred on AI product management rather
+than just AI.
+
 ### Why the move from computer engineering into product?
 
 I have always felt that engineering is more about execution but true value lies in identifying the right problem and then building a solution for the creating the most optimal product. I feel like having technical knowledge but being able to understand what a user truly needs and what the user's problems are is the best way to go since that leads to building with empathy by keeping the user in mind instead of just executing and shipping things without a thought. Product management makes me build things that actually solve a problem in the world whereas my computer engineering background helps me coordinate with engineers and technical stakeholders better by actually understanding the technical feasibilities and often helps me build things on my own.
