@@ -20,7 +20,10 @@ const ALLOWED_ORIGINS = new Set([
 // NVIDIA NIM exposes an OpenAI-compatible API, so we keep the `openai` SDK and
 // just repoint it. Note NIM implements *Chat Completions*, not the newer
 // Responses API — hence `chat.completions.create` below.
-const NIM_BASE_URL = "https://integrate.api.nvidia.com/v1";
+// Overridable so a local test harness can point it at a mock server; in
+// production the env var is unset and this falls back to the real endpoint.
+const NIM_BASE_URL =
+  process.env.NIM_BASE_URL || "https://integrate.api.nvidia.com/v1";
 // Models on this platform disappear or turn out to be un-entitled without
 // warning, which has now cost several deploy cycles:
 //   deepseek-v4-pro         → 410 Gone, retired 2026-08-07
@@ -257,6 +260,9 @@ export default async function handler(req, res) {
 
   const send = (event, data) =>
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+
+  // Wall-clock origin for the model-probe deadline below.
+  const startedAt = Date.now();
 
   try {
     // `instructions` carries the profile and is byte-identical on every
