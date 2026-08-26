@@ -1030,12 +1030,20 @@ body.chat-engaged .hero-greeting {
 .hero-stats {
   transition: max-height 0.55s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease,
     margin 0.55s ease;
-  overflow: hidden;
   max-height: 400px;
   opacity: 1;
+  /* NO `overflow: hidden` at rest. It clips the primary button's glow to this
+     container's rectangle, turning a soft halo into a hard-edged rectangle of
+     light. Clipping is only needed while collapsing, so it lives in the
+     .chat-engaged rule below. */
 }
+
+/* Breathing room between the chat's disclaimer line and these buttons; without
+   it they sit flush against the text and read as overlapping. */
+.hero-cta { margin-top: 34px; }
 body.chat-engaged .hero-cta,
 body.chat-engaged .hero-stats {
+  overflow: hidden; /* only while collapsing — see note above */
   max-height: 0;
   opacity: 0;
   margin: 0;
@@ -1377,3 +1385,7 @@ body.chat-engaged .hero-chat::before { opacity: 1.25; }
 @media (prefers-reduced-motion: reduce) {
   .hero-chat::before { transition: none; }
 }
+
+/* The spotlight was tall enough to spill over the CTA buttons below the chat,
+   washing them out. Pull it in so it lights the conversation only. */
+.hero-chat::before { height: 150%; }
