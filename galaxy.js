@@ -1,3 +1,29 @@
+// ---------- Scroll restoration ----------
+// Browsers restore the previous scroll offset on reload. That offset is
+// captured before webfonts swap and images settle, so the layout it referred
+// to no longer exists by the time it's applied — the position lands slightly
+// low, and because the new (wrong) offset is what gets saved next, the error
+// compounds on every refresh.
+//
+// A portfolio should just open at the top. Anchor links still work: an explicit
+// #hash is honoured.
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+if (!location.hash) {
+  window.scrollTo(0, 0);
+  // Again after load: fonts and images finish after DOMContentLoaded and can
+  // nudge the page on their own.
+  window.addEventListener("load", () => {
+    if (!location.hash) window.scrollTo(0, 0);
+  });
+} else {
+  // Restore the anchor behaviour the browser would have given us.
+  window.addEventListener("load", () => {
+    const target = document.querySelector(location.hash);
+    if (target) target.scrollIntoView();
+  });
+}
+
 // Year
 const yearEl = document.getElementById("year");
 if (yearEl) {
