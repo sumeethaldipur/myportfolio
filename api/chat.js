@@ -50,14 +50,20 @@ const MODEL_CANDIDATES = [
 // Statuses that mean "this model isn't usable", as opposed to a real fault.
 const MODEL_UNAVAILABLE = new Set([404, 410]);
 
+// Stop probing alternatives after this long and fall back to the proven model,
+// leaving the rest of the function budget for actually generating the reply.
+const PROBE_DEADLINE_MS = 15000;
+
 // Remembered across warm invocations so we don't re-probe dead models on
 // every request.
 let resolvedModel = null;
 
 // Reasoning is toggled by a chat-template kwarg whose NAME VARIES BY MODEL
-// FAMILY: Nemotron 3 uses `enable_thinking`, DeepSeek V4 uses `thinking`.
-// Sending the wrong one doesn't error — it's silently ignored and reasoning
-// stays ON, costing latency. All candidates above are Nemotron.
+// FAMILY: Nemotron 3 and Gemma 4 both use `enable_thinking`; DeepSeek V4 uses
+// `thinking`. Sending the wrong one doesn't error — it's silently ignored and
+// reasoning stays ON, costing latency. Every candidate above takes
+// `enable_thinking` (verified against each model's API spec), so one constant
+// covers the list. Re-check this when adding a model from a new family.
 const NO_THINKING_KWARGS = { enable_thinking: false };
 // Answer length is shaped by the prompt (see TARGET_REPLY_CHARS below), not by
 // this ceiling. max_tokens is only a backstop against a runaway generation, so
@@ -294,7 +300,18 @@ export default async function handler(req, res) {
 
     let stream = null;
     let lastErr = null;
-    for (const model of order) {
+    for (const [i, model] of order.entries()) {
+      // Each failed probe eats into the function's wall-clock budget, and the
+      // reply still has to generate afterwards. Past the deadline, stop
+      // exploring and go straight to the last (proven) candidate.
+      const elapsed = Date.now() - startedAt;
+      const isLast = i === order.length - 1;
+      if (!isLast && elapsed > PROBE_DEADLINE_MS) {
+        console.warn(
+          `Probe budget spent (${elapsed}ms); skipping to ${order[order.length - 1]}.`
+        );
+        continue;
+      }
       try {
         stream = await openStream(model);
         if (model !== resolvedModel) {
@@ -309,6 +326,10 @@ export default async function handler(req, res) {
       }
     }
     if (!stream) throw lastErr ?? new Error("No usable model available.");
+
+    // Which candidate won. A model name isn't sensitive, and without this the
+    // only way to know which one answered is to dig through the Vercel logs.
+    send("model", { model: resolvedModel });
 
     for await (const chunk of stream) {
       // Read only `content`. With thinking enabled the model also emits
