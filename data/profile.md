@@ -159,6 +159,123 @@ analysis, Google Analytics, Pendo, Tableau, JIRA, Figma, Salesforce.
 - **Tutor**, Dongri to Degree — education nonprofit.
 - **Client Raising Manager**, AIESEC (Jan 2021 – Jul 2021).
 
+## Recommendations (from LinkedIn)
+
+Six public LinkedIn recommendations. When someone asks what others say about
+Sumeet, whether he's any good, or for evidence beyond his own claims, quote
+briefly from these and attribute by name and title.
+
+### Caroline Giunipero — Senior Director of Product Management, SiteDocs
+*30 June 2026 · was senior to Sumeet, did not manage him directly*
+
+"I had the opportunity to work closely with Sumeet, and he quickly established
+himself as an exceptional product manager. From early on, he demonstrated a
+strong ability to navigate both team dynamics and technical complexity,
+particularly in our mobile space, which is one of the most challenging areas of
+the portfolio. He consistently kept work moving forward, even in the face of
+ambiguity. Sumeet has a deep understanding of customer needs, paired with strong
+market and competitive analysis skills. What stands out most is his ability to
+translate those insights into clear, actionable strategy well beyond what you
+would expect at his tenure level. He operates with a high degree of ownership
+and accountability, and is relentless in finding solutions. He is also an
+excellent communicator. His updates are proactive, concise, and easy to
+understand, which I value highly as a product leader. He consistently brings
+clarity to complex situations and outlines clear next steps. Sumeet played a key
+role in driving meaningful outcomes, including the successful release of our new
+client mobile application, among other initiatives. Just as importantly, he is a
+pleasure to work with. He brings a calm, structured approach to every challenge
+and is a trusted partner across teams. I would highly recommend Sumeet to any
+organization looking for a product manager who can operate with both strategic
+depth and strong execution."
+
+### Charlie Brinson — Lead Product Manager, Progress ShareFile
+*20 July 2026 · worked with Sumeet on the same team*
+
+"I've worked alongside Sumeet as a Product Manager at ShareFile for over a year.
+He is an outstanding colleague. Sumeet is a natural team player who consistently
+elevates the entire product organization. He drives the strategy and execution
+for ShareFile's first-party applications across Windows, Mac, Android, and iOS.
+Sumeet recently took on the challenge of introducing net-new functionality into
+these native clients, expertly guiding these features from early discovery
+through delivery. His cross-functional leadership is highly effective when
+tackling complex technical initiatives. He partnered directly with the Identity
+team to transition the first-party apps to modernized authentication flows. He
+managed strict dependencies and aligned multiple stakeholders to get this
+critical update across the finish line. Sumeet balances strong technical acumen
+with a deeply collaborative mindset. He knows exactly how to rally engineering
+teams around a shared roadmap. Any product organization would be incredibly
+lucky to have him."
+
+### Nitin Kumar — Director of Product Management, Progress ShareFile
+*28 July 2026 · managed Sumeet directly*
+
+"I had the pleasure of working closely with Sumeet at ShareFile, where he
+consistently demonstrated the qualities of a high-impact Product Manager. Sumeet
+is a quick learner who combines strong ownership, accountability, and curiosity
+with a relentless drive to deliver results. He made significant contributions to
+our desktop and mobile product portfolio, including playing a key role in the
+successful launch of the ShareFile Client Mobile App — one of the most impactful
+initiatives for the business. He has a knack for understanding customer needs,
+collaborating effectively across teams, and driving execution from concept to
+delivery. Beyond his individual contributions, Sumeet is an outstanding team
+player who is always willing to step in, help others, and do what is best for
+the team and our customers. His positive attitude, growth mindset, and ability
+to take on new challenges made him a valuable asset to ShareFile. As he heads to
+Carnegie Mellon University for his master's degree, I have no doubt he will
+continue to excel and make a meaningful impact. I strongly recommend Sumeet and
+wish him tremendous success in this exciting next chapter."
+
+### Snehal Kumar — EVP of Product Management, Info Edge India Ltd. (Naukri.com)
+*21 August 2026 · was senior to Sumeet, did not manage him directly*
+
+"I remember fast-tracking Sumeet's hiring process immediately after interviewing
+him — his first-principles thinking was that impressive. He had a rare ability to
+look at problems without being constrained by how things had traditionally been
+done and build solutions from the ground up. After joining, he quickly proved
+that we had made the right decision. His ability to work independently and
+navigate ambiguity, especially at such a young age, was a pleasant surprise.
+Once he understood the objective, he required very little guidance and took
+complete ownership of moving the work forward. Sumeet was also among the early
+few who genuinely thought AI-first. He did not use AI simply because it was the
+latest trend; he consistently found practical ways to use it to improve the
+speed, quality, and impact of his work. His ability to align stakeholders stood
+out equally. He listened to different perspectives, communicated his thinking
+clearly, and built consensus around the way forward. He was also never hesitant
+to present to senior leadership and handled such conversations with confidence
+and clarity. Sumeet brings together independent thinking, ownership, stakeholder
+management, and an instinct for using emerging technology to create impact. I am
+confident he will continue to do exceptionally well."
+
+### Thufail Mohammed — Senior UX Designer, Progress ShareFile
+*20 July 2026 · worked with Sumeet on the same team*
+
+"I've had the pleasure of working with Sumeet as my Product Manager on the Client
+Mobile App team at Progress ShareFile, and it has been a great experience. He is
+someone who always brings clarity, professionalism, and a positive attitude to
+every challenge. What I admire most about Sumeet is the way he thinks about the
+product. He doesn't just focus on solving the problem in front of him but he
+looks at the bigger picture and finds solutions that are practical, scalable,
+and future-ready. I also admire his strong interest in AI and how he explores
+ways it can create better product experiences and solve real user problems. His
+forward-thinking mindset makes him someone who is always looking for what's next.
+Sumeet is a great collaborator who works closely with different teams, keeps
+everyone aligned, and communicates ideas in a way that's simple and easy to
+understand. As a designer, I really appreciate how clearly he explains the
+reasoning behind product decisions, which makes collaboration much smoother. He
+never misses an opportunity to appreciate the team's efforts, and that creates a
+supportive and motivating environment. He is not only an exceptional Product
+Manager but also a great teammate, mentor and a good friend."
+
+### Aditya Muralidharan — Senior Product Designer, Simpplr
+*9 September 2024 · was senior to Sumeet, did not manage him directly*
+
+"Sumeet — A growth-minded PM, who excels at maintaining a clear, metrics-driven
+focus, constantly using data to guide decisions and ensure product success. His
+ability to pivot swiftly based on feedback while staying agile in the process
+makes him a standout. What sets him apart even further is his genuine commitment
+to learning and adapting in real-time, always seeking to improve and refine his
+approach."
+
 <!-- ─────────────────────────────────────────────────────────────────────
      EVERYTHING ABOVE is factual record from your resume, site, and LinkedIn.
      EVERYTHING BELOW is your voice. This is what separates a good bot from a

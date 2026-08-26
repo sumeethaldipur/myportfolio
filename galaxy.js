@@ -249,14 +249,60 @@ window.addEventListener("scroll", () => {
   // this the greeting collapses around the visitor while the page stays put,
   // so the input appears to jump rather than the view following it.
   const composer = form;
-  function centerComposer() {
-    composer.scrollIntoView({
-      block: "center",
-      inline: "nearest",
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    });
+
+  // Hand-rolled rather than scrollIntoView({behavior:"smooth"}) for two
+  // reasons. First, `html { scroll-behavior: smooth }` is set globally, so the
+  // browser runs its OWN animation on top of any programmatic scroll — the two
+  // fight and the result stutters. Second, native smooth scroll picks its own
+  // duration, which over a long distance drags. A fixed 420ms ease is
+  // predictable and reads as smooth at any distance.
+  const html = document.documentElement;
+  let scrollRaf = null;
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
-  input.addEventListener("focus", centerComposer);
+
+  function scrollToY(targetY, duration = 420) {
+    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    const maxY = document.documentElement.scrollHeight - window.innerHeight;
+    const endY = Math.max(0, Math.min(targetY, maxY));
+    const startY = window.scrollY;
+    const delta = endY - startY;
+    if (Math.abs(delta) < 2) return;
+
+    if (prefersReducedMotion || duration === 0) {
+      window.scrollTo(0, endY);
+      return;
+    }
+
+    // Suppress the CSS-level smooth scroll for the duration of ours, otherwise
+    // every per-frame scrollTo would kick off its own easing.
+    const previousBehavior = html.style.scrollBehavior;
+    html.style.scrollBehavior = "auto";
+
+    const startedAt = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - startedAt) / duration);
+      window.scrollTo(0, startY + delta * easeInOutCubic(t));
+      if (t < 1) {
+        scrollRaf = requestAnimationFrame(step);
+      } else {
+        scrollRaf = null;
+        html.style.scrollBehavior = previousBehavior;
+      }
+    };
+    scrollRaf = requestAnimationFrame(step);
+  }
+
+  function centerComposer(duration) {
+    const box = composer.getBoundingClientRect();
+    const target =
+      window.scrollY + box.top + box.height / 2 - window.innerHeight / 2;
+    scrollToY(target, duration);
+  }
+
+  input.addEventListener("focus", () => centerComposer());
 
   // The greeting collapse moves the composer after focus, so re-centre once
   // that animation finishes — but only while the input still has focus, so we
@@ -265,7 +311,12 @@ window.addEventListener("scroll", () => {
   greeting?.addEventListener("transitionend", (e) => {
     if (e.propertyName !== "max-height") return;
     if (document.activeElement !== input) return;
-    centerComposer();
+    // Only correct a drift worth correcting. A second animation chasing a
+    // 20px difference is what makes this feel jittery rather than smooth.
+    const box = composer.getBoundingClientRect();
+    const drift = box.top + box.height / 2 - window.innerHeight / 2;
+    if (Math.abs(drift) < 60) return;
+    centerComposer(300);
   });
 
   // --- rendering -----------------------------------------------------------
@@ -481,4 +532,49 @@ window.addEventListener("scroll", () => {
     );
     fabObserver.observe(heroChat);
   }
+})();
+
+// ---------- Recommendations rail ----------
+(function () {
+  const rail = document.getElementById("recs-rail");
+  if (!rail) return;
+  const wrap = rail.closest(".recs-wrap");
+  const prev = wrap?.querySelector(".recs-nav.prev");
+  const next = wrap?.querySelector(".recs-nav.next");
+  if (!prev || !next) return;
+
+  // Scroll by one card plus the gap, so a click always lands cleanly on the
+  // next card rather than leaving one half-visible.
+  function step() {
+    const card = rail.querySelector(".rec-card");
+    if (!card) return rail.clientWidth * 0.8;
+    const gap = parseFloat(getComputedStyle(rail).gap) || 20;
+    return card.getBoundingClientRect().width + gap;
+  }
+
+  function scrollRail(dir) {
+    rail.scrollBy({
+      left: dir * step(),
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }
+
+  prev.addEventListener("click", () => scrollRail(-1));
+  next.addEventListener("click", () => scrollRail(1));
+
+  // Hide an arrow when there's nothing further that way.
+  function syncArrows() {
+    const max = rail.scrollWidth - rail.clientWidth;
+    prev.disabled = rail.scrollLeft < 8;
+    next.disabled = rail.scrollLeft > max - 8;
+  }
+  rail.addEventListener("scroll", syncArrows, { passive: true });
+  window.addEventListener("resize", syncArrows);
+  syncArrows();
+
+  // Left/right arrow keys when the rail itself has focus.
+  rail.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); scrollRail(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); scrollRail(-1); }
+  });
 })();

@@ -389,12 +389,41 @@ export default async function handler(req, res) {
     // only way to know which one answered is to dig through the Vercel logs.
     send("model", { model: resolvedModel });
 
+    // The prompt forbids code, and the model ignores it — it declines, then
+    // helpfully writes the snippet anyway. Instructions clearly aren't enough,
+    // so cut the stream the moment a fence appears. `pending` holds back the
+    // last couple of characters so a fence split across chunks ("`" then "``")
+    // can't slip through.
+    const FENCE = "```";
+    let pending = "";
+    let cut = false;
+
     for await (const chunk of stream) {
       // Read only `content`. With thinking enabled the model also emits
       // `reasoning_content` on the delta, which must never reach a visitor.
       const text = chunk.choices?.[0]?.delta?.content;
-      if (text) send("delta", { text });
+      if (!text) continue;
+
+      pending += text;
+      const at = pending.indexOf(FENCE);
+      if (at !== -1) {
+        const keep = pending.slice(0, at).trimEnd();
+        if (keep) send("delta", { text: keep });
+        send("delta", {
+          text: "\n\nHappy to talk about how Sumeet approaches problems instead.",
+        });
+        cut = true;
+        break;
+      }
+
+      // Emit everything except a possible partial fence at the tail.
+      const safe = Math.max(0, pending.length - (FENCE.length - 1));
+      const out = pending.slice(0, safe);
+      pending = pending.slice(safe);
+      if (out) send("delta", { text: out });
     }
+
+    if (!cut && pending) send("delta", { text: pending });
 
     send("done", {});
     res.end();
