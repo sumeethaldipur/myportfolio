@@ -93,11 +93,8 @@ ${KNOWLEDGE}`;
 // the API key is missing, and a throw during module load crashes the whole
 // function with an opaque FUNCTION_INVOCATION_FAILED before the handler can
 // report anything useful. Deferring it lets us return a readable error.
-// Accept the common misspelling as a fallback. NVIDEA/NVIDIA is an easy slip,
-// and a silent `undefined` here costs a full deploy cycle to diagnose.
-// Preferred name is NVIDIA_API_KEY — clean the alias up once things are stable.
 function apiKey() {
-  return process.env.NVIDIA_API_KEY || process.env.NVIDEA_API_KEY || null;
+  return process.env.NVIDIA_API_KEY || null;
 }
 
 let _client = null;
@@ -169,17 +166,12 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Knowledge base failed to load." });
   }
   if (!apiKey()) {
-    // TEMPORARY: report which key-ish variable NAMES the function can actually
-    // see. Names only — never values — so this leaks nothing, but it turns
-    // "missing" into "here is what is actually set". Remove once working.
-    const visible = Object.keys(process.env)
-      .filter((k) => /NVID|API|KEY|TOKEN/i.test(k))
-      .sort();
-    console.error("No API key found. Key-ish env var names:", visible);
+    // Full detail goes to the Vercel logs, not to the visitor.
+    console.error(
+      "No API key found. Set NVIDIA_API_KEY in the Vercel project settings.",
+    );
     return res.status(500).json({
-      error:
-        "The assistant isn't configured yet. (No NVIDIA API key visible to the server.)",
-      visibleEnvNames: visible,
+      error: "The assistant isn't available right now.",
     });
   }
 
@@ -274,42 +266,21 @@ export default async function handler(req, res) {
     // is useless when the real cause is an unpaid account or a model the key
     // can't reach. Status codes aren't sensitive, so the code is echoed to make
     // diagnosis possible without digging through logs.
-    // NOTE: these messages are deliberately specific while we're getting the
-    // deployment working. Before sharing the portfolio widely, collapse the
-    // 401/403/404 branches into the friendly catch-all below — a visitor
-    // shouldn't be told about the owner's billing or API key. The echoed
-    // `status` field is enough to keep diagnosing.
+    // Visitor-facing copy only. Anything that would expose the owner's
+    // billing, key state, or model config stays in the logs above; `status` is
+    // echoed because a bare HTTP code is useful for debugging and reveals
+    // nothing. Full detail: Vercel project -> Logs.
     const status = err?.status;
     let message;
-    if (status === 401) {
-      message = "The assistant's NVIDIA API key is invalid or was revoked.";
-    } else if (status === 403) {
-      message = "This API key doesn't have access to the configured model.";
-    } else if (status === 404) {
-      message = `Model "${MODEL}" isn't available to this account.`;
-    } else if (status === 429) {
-      message =
-        "Out of NVIDIA NIM credits, or too many requests. Check build.nvidia.com.";
-    } else if (status === 400) {
-      message = `Bad request to the model API: ${err?.message ?? "unknown"}`;
+    if (status === 429 || status === 503 || status === 504) {
+      // Routine on NIM's free tier — shared capacity is briefly saturated.
+      message = "I'm a bit overloaded right now — try that again in a moment.";
     } else {
       message =
         "Something went wrong on my end. Email sumeethaldipur.work@gmail.com and Sumeet will answer directly.";
     }
 
-    // TEMPORARY diagnostics. A null `status` means the failure never reached
-    // the OpenAI API (it's a client/runtime error, not an HTTP rejection), and
-    // the status code alone can't distinguish those. Remove `debug` once the
-    // deployment is working — see the NOTE above.
-    send("error", {
-      message,
-      status: status ?? null,
-      debug: {
-        name: err?.name ?? null,
-        code: err?.code ?? null,
-        message: String(err?.message ?? "").slice(0, 300),
-      },
-    });
+    send("error", { message, status: status ?? null });
     send("done", {});
     res.end();
   }

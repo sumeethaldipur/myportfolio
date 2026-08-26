@@ -183,17 +183,15 @@ assumes.
 
 ### Why the move from computer engineering into product?
 
-<!-- TODO: 3–4 sentences in your voice. -->
+I have always felt that engineering is more about execution but true value lies in identifying the right problem and then building a solution for the creating the most optimal product. I feel like having technical knowledge but being able to understand what a user truly needs and what the user's problems are is the best way to go since that leads to building with empathy by keeping the user in mind instead of just executing and shipping things without a thought. Product management makes me build things that actually solve a problem in the world whereas my computer engineering background helps me coordinate with engineers and technical stakeholders better by actually understanding the technical feasibilities and often helps me build things on my own.
 
 ### Why an MS in Software Management at CMU, and why AI Product Management?
 
-<!-- TODO: 3–4 sentences. What do you want out of it, and why now after three
-     years of working? -->
+The MS in Software Management program at CMU is centered around AI product management which is what I want to invest in deeply since with the evolution of AI, it is important for me to understand how we build ethically while ensuring that we solve an actual problem rather than just shipping things because we can. The program is taught by Professors who have their own companies or are full time working professionals at big tech companies so learning about how AI is revolutionizing both entrepreneurship as well as tech ventures firsthand is very valuable. Down the line I want to either create my own company or play a pivotal role in shaping the strategy for a company which works very well with this program since it is very much into tech centered entrepreneurship.
 
 ### What are you looking for in a Summer 2027 internship?
 
-<!-- TODO: Company type, product area, what you want to learn. Be specific —
-     this is the answer recruiters will actually read. -->
+I am looking to work with a company that thinks problem first and then actually tries to understand whether AI is something that's needed rather than shoving it everywhere just to appease investors or to create a buzz. I want to solve real world problems that afflict majority of the world's population and have an impact towards it. I work the best when I am allowed to own an entire product and have proven to be a great leader and strategist when it comes to product management.
 
 ### What's the work you're proudest of?
 
