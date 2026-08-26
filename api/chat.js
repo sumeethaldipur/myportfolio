@@ -53,9 +53,16 @@ const MODEL_CANDIDATES = [
 // Statuses that mean "this model isn't usable", as opposed to a real fault.
 const MODEL_UNAVAILABLE = new Set([404, 410]);
 
-// Stop probing alternatives after this long and fall back to the proven model,
-// leaving the rest of the function budget for actually generating the reply.
-const PROBE_DEADLINE_MS = 15000;
+// How long a single candidate gets to START responding before we move on.
+// One unresponsive model must not be able to consume the whole invocation.
+const PROBE_TIMEOUT_MS = 10000;
+
+// Budget always held back so the final fallback can actually generate a reply,
+// no matter how much time earlier candidates burned.
+const RESERVE_FOR_FINAL_MS = 25000;
+
+// vercel.json maxDuration, minus headroom to flush the SSE response.
+const FUNCTION_BUDGET_MS = 52000;
 
 // Remembered across warm invocations so we don't re-probe dead models on
 // every request.
@@ -284,19 +291,32 @@ export default async function handler(req, res) {
     // answering resume questions — reasoning would add seconds of latency for
     // no gain in answer quality. If a model rejects the kwarg, retry plain
     // rather than failing the turn over a performance tweak.
-    async function openStream(model) {
+    // `timeout` bounds how long we wait for the model to START responding.
+    // Without it one unresponsive candidate consumes the entire function
+    // budget and nothing gets answered at all.
+    // maxRetries matters as much as timeout here: the SDK retries twice by
+    // default, so a hanging model costs timeout x3, not timeout. Probes get no
+    // retries; the final fallback gets one, to ride out a transient 503.
+    async function openStream(model, timeout, maxRetries) {
+      const opts = { timeout, maxRetries };
       try {
-        return await getClient().chat.completions.create({
-          ...request,
-          model,
-          chat_template_kwargs: NO_THINKING_KWARGS,
-        });
+        return await getClient().chat.completions.create(
+          { ...request, model, chat_template_kwargs: NO_THINKING_KWARGS },
+          opts
+        );
       } catch (err) {
         if (err?.status !== 400) throw err;
         console.warn("chat_template_kwargs rejected; retrying without it.");
-        return getClient().chat.completions.create({ ...request, model });
+        return getClient().chat.completions.create({ ...request, model }, opts);
       }
     }
+
+    // A candidate that times out is treated the same as one that 404s: not
+    // usable right now, move on. Anything else is a genuine fault and rethrows.
+    const isSkippable = (err) =>
+      MODEL_UNAVAILABLE.has(err?.status) ||
+      err?.name === "APIConnectionTimeoutError" ||
+      /timed? ?out/i.test(err?.message ?? "");
 
     // Try the remembered model first, then work down the candidate list,
     // skipping any that report themselves unavailable.
@@ -307,27 +327,37 @@ export default async function handler(req, res) {
     let stream = null;
     let lastErr = null;
     for (const [i, model] of order.entries()) {
-      // Each failed probe eats into the function's wall-clock budget, and the
-      // reply still has to generate afterwards. Past the deadline, stop
-      // exploring and go straight to the last (proven) candidate.
-      const elapsed = Date.now() - startedAt;
       const isLast = i === order.length - 1;
-      if (!isLast && elapsed > PROBE_DEADLINE_MS) {
-        console.warn(
-          `Probe budget spent (${elapsed}ms); skipping to ${order[order.length - 1]}.`
-        );
+      const remaining = FUNCTION_BUDGET_MS - (Date.now() - startedAt);
+
+      // Always keep enough budget in reserve for the final candidate to
+      // actually answer. Earlier candidates borrow only what's spare — and are
+      // skipped entirely once there's nothing spare left. Skipping only ever
+      // moves DOWN the list, so a viable candidate is never jumped over while
+      // budget remains.
+      const spare = remaining - RESERVE_FOR_FINAL_MS;
+      if (!isLast && spare < 2000) {
+        console.warn(`No probe budget left (${remaining}ms); skipping ${model}.`);
         continue;
       }
+
+      const timeout = isLast
+        ? Math.max(15000, remaining)
+        : Math.min(PROBE_TIMEOUT_MS, spare);
       try {
-        stream = await openStream(model);
+        stream = await openStream(model, timeout, isLast ? 1 : 0);
         if (model !== resolvedModel) {
           console.log(`Using model: ${model}`);
           resolvedModel = model;
         }
         break;
       } catch (err) {
-        if (!MODEL_UNAVAILABLE.has(err?.status)) throw err;
-        console.warn(`Model unavailable (${err.status}): ${model}`);
+        if (!isSkippable(err)) throw err;
+        console.warn(
+          `Skipping ${model}: ${err?.status ?? err?.name ?? "error"}`
+        );
+        // A model that hangs shouldn't stay cached as the preferred one.
+        if (resolvedModel === model) resolvedModel = null;
         lastErr = err;
       }
     }
