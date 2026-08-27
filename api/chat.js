@@ -54,9 +54,14 @@ const NIM_BASE_URL =
 // Do not promote an unverified model to the top. Check it first with
 // ./check-models.sh, then reorder.
 const MODEL_CANDIDATES = [
-  "nvidia/nemotron-3.5-lightning-30b-a3b", // verified fast on this account
-  "nvidia/nemotron-3-nano-30b-a3b",
-  "nvidia/nemotron-3-ultra-550b-a55b", // verified working; slow safety net
+  "nvidia/nemotron-3-nano-30b-a3b", // 2026-08-27: what actually answers, ~0.65s
+  "nvidia/nemotron-3-ultra-550b-a55b", // works; slower and more verbose
+  // nemotron-3.5-lightning was first here and stopped answering. It is still
+  // listed in the public catalog, so the failure is per-account, not a
+  // retirement — same as gemma-4 before it. Sitting in front, it cost every
+  // COLD START a full probe before falling through to nano, which is the
+  // "first question is slow" symptom. Re-add only after ./check-models.sh
+  // shows it OK, and never in first position until then.
 ];
 
 // Statuses that mean "this model isn't usable", as opposed to a real fault.
@@ -397,6 +402,7 @@ export default async function handler(req, res) {
 
     let stream = null;
     let lastErr = null;
+    const skipped = [];
     for (const [i, model] of order.entries()) {
       const isLast = i === order.length - 1;
       const remaining = FUNCTION_BUDGET_MS - (Date.now() - startedAt);
@@ -424,9 +430,9 @@ export default async function handler(req, res) {
         break;
       } catch (err) {
         if (!isSkippable(err)) throw err;
-        console.warn(
-          `Skipping ${model}: ${err?.status ?? err?.name ?? "error"}`
-        );
+        const why = err?.status ?? err?.name ?? "error";
+        skipped.push({ model, why, ms: Date.now() - startedAt });
+        console.warn(`Skipping ${model}: ${why}`);
         // A model that hangs shouldn't stay cached as the preferred one.
         if (resolvedModel === model) resolvedModel = null;
         lastErr = err;
@@ -438,6 +444,7 @@ export default async function handler(req, res) {
     // only way to know which one answered is to dig through the Vercel logs.
     send("model", {
       model: resolvedModel,
+      skippedModels: skipped.length ? skipped : null,
       mode: effectiveMode,
       requestedMode: mode,
       embedModel: embedModelInUse(),
