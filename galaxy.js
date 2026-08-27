@@ -459,7 +459,8 @@ window.addEventListener("scroll", () => {
   suggestions?.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
     if (!btn || busy) return;
-    input.value = btn.textContent.trim();
+    // The chip shows a short label; data-q carries the question actually asked.
+    input.value = (btn.dataset.q || btn.textContent).trim();
     form.requestSubmit();
   });
 

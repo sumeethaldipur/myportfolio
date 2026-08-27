@@ -1546,3 +1546,26 @@ body.chat-engaged .hero-chat::before { opacity: 1.25; }
 @media (prefers-reduced-motion: reduce) {
   .rec-card, .recs-nav { transition: none; }
 }
+
+/* Keep the suggestion chips on a single row so they never push the CTA below
+   the fold. On narrow screens they scroll sideways rather than wrapping. */
+.chat-suggestions {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.chat-suggestions::-webkit-scrollbar { display: none; }
+.chat-suggestions button { flex: 0 0 auto; white-space: nowrap; }
+
+/* On narrow screens let them wrap onto a second row. A one-line rail there
+   would need sideways scrolling, which is less discoverable than simply
+   seeing all four, and the CTA still clears the fold. */
+@media (max-width: 640px) {
+  .chat-suggestions {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    justify-content: center;
+  }
+}
