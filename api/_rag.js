@@ -47,6 +47,51 @@ const QUERY_BUDGET_MS = 10000; // embedding a single question
 
 let indexPromise = null;
 let resolvedEmbedModel = null;
+let embedClient = null;
+
+// The embedding provider is decoupled from the chat provider on purpose.
+// NVIDIA serves chat models on the free tier but grants no embedders, so
+// dense retrieval has to source vectors elsewhere. Set EMBED_API_KEY (and
+// optionally EMBED_BASE_URL / EMBED_MODEL) and this uses that instead.
+//
+// Defaults target Jina: free tier, no card, OpenAI-compatible /v1/embeddings.
+const EMBED_BASE_URL = process.env.EMBED_BASE_URL || "https://api.jina.ai/v1";
+const EMBED_API_KEY = process.env.EMBED_API_KEY || null;
+const EMBED_MODEL =
+  process.env.EMBED_MODEL || "jina-embeddings-v5-omni-small";
+
+/**
+ * Retrieval embedders are asymmetric — queries and passages go through
+ * different projections — but providers spell the switch differently. Jina
+ * uses `task`, NVIDIA uses `input_type`. Sending the wrong key is not an
+ * error; it is silently ignored, and retrieval quality quietly drops.
+ */
+function asymmetryParams(baseUrl, inputType) {
+  if (/jina\.ai/.test(baseUrl)) {
+    return { task: inputType === "query" ? "retrieval.query" : "retrieval.passage" };
+  }
+  return { input_type: inputType, truncate: "END" };
+}
+
+/**
+ * Jina's multimodal models (v5 "omni") take `input: [{ text: "..." }]`, while
+ * classic text models take `input: ["..."]`. Sending the wrong shape is a hard
+ * 400, and which one applies depends purely on the model name — so derive it
+ * rather than assuming whichever the docs happened to show.
+ */
+function formatInputs(model, baseUrl, texts) {
+  const multimodal = /jina\.ai/.test(baseUrl) && /(^|-)(v5|omni)/.test(model);
+  return multimodal ? texts.map((text) => ({ text })) : texts;
+}
+
+function extraParams(model, baseUrl) {
+  // Unit-length vectors make cosine similarity a plain dot product. Harmless
+  // for providers that ignore it — cosine() normalises anyway.
+  if (/jina\.ai/.test(baseUrl) && /(^|-)(v5|omni)/.test(model)) {
+    return { normalized: true };
+  }
+  return {};
+}
 
 /** Thrown when no embedding model on the account can be reached at all. */
 export class NoEmbeddingModelError extends Error {
@@ -97,9 +142,9 @@ async function callEmbed(client, model, inputs, inputType, timeout) {
   const res = await client.embeddings.create(
     {
       model,
-      input: inputs,
-      input_type: inputType, // "passage" when indexing, "query" when searching
-      truncate: "END",
+      input: formatInputs(model, client.baseURL || "", inputs),
+      ...asymmetryParams(client.baseURL || "", inputType),
+      ...extraParams(model, client.baseURL || ""),
     },
     // BOTH matter. maxRetries alone still lets a hanging model block until the
     // whole function times out; timeout alone gets multiplied by the retries.
@@ -122,7 +167,21 @@ function isUnusable(err) {
   );
 }
 
+function dedicatedClient(OpenAICtor) {
+  if (!embedClient && EMBED_API_KEY) {
+    embedClient = new OpenAICtor({ apiKey: EMBED_API_KEY, baseURL: EMBED_BASE_URL });
+  }
+  return embedClient;
+}
+
 async function embed(client, inputs, inputType, budgetMs) {
+  // A configured provider is authoritative — no probing, no fallback list.
+  const dedicated = dedicatedClient(client.constructor);
+  if (dedicated) {
+    resolvedEmbedModel = EMBED_MODEL;
+    return callEmbed(dedicated, EMBED_MODEL, inputs, inputType, budgetMs);
+  }
+
   // Once one works, stay on it — mixing embedders would put passages and
   // queries in different vector spaces and make similarity meaningless.
   if (resolvedEmbedModel) {
