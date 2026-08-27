@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import OpenAI from "openai";
+import { retrieve, TOP_K } from "./_rag.js";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -164,6 +165,22 @@ Write only what a person asking about Sumeet would want to read.
 
 ${KNOWLEDGE}`;
 
+// Same instructions, but only the retrieved excerpts instead of everything.
+// Split out so the two strategies differ ONLY in what knowledge reaches the
+// model — otherwise a comparison measures prompt wording, not retrieval.
+const INSTRUCTIONS_ONLY = SYSTEM_PROMPT.slice(
+  0,
+  SYSTEM_PROMPT.indexOf("## PROFILE")
+);
+
+function ragPrompt(excerpts) {
+  return (
+    INSTRUCTIONS_ONLY +
+    "## PROFILE (excerpts retrieved for this question)\n\n" +
+    excerpts.map((e) => e.text).join("\n\n---\n\n")
+  );
+}
+
 // Built lazily on first request, NOT at module scope: the SDK throws when
 // the API key is missing, and a throw during module load crashes the whole
 // function with an opaque FUNCTION_INVOCATION_FAILED before the handler can
@@ -280,6 +297,16 @@ export default async function handler(req, res) {
   const problem = validate(messages);
   if (problem) return res.status(400).json({ error: problem });
 
+  // "full" sends the entire profile; "rag" embeds the question and sends only
+  // the top-k matching sections. Per-request so both can be measured against
+  // the same deployment rather than two separate ones.
+  const mode =
+    body?.mode === "rag" || body?.mode === "full"
+      ? body.mode
+      : process.env.RETRIEVAL_MODE === "rag"
+        ? "rag"
+        : "full";
+
   // Server-Sent Events: the browser renders tokens as they arrive rather than
   // staring at a spinner for several seconds.
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
@@ -296,9 +323,17 @@ export default async function handler(req, res) {
   try {
     // `instructions` carries the profile and is byte-identical on every
     // `model` is supplied per-attempt by the candidate loop below.
+    let systemContent = SYSTEM_PROMPT;
+    let retrieved = null;
+    if (mode === "rag") {
+      const question = messages[messages.length - 1].content;
+      retrieved = await retrieve(getClient(), KNOWLEDGE, question, TOP_K);
+      systemContent = ragPrompt(retrieved);
+    }
+
     const request = {
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: systemContent },
         ...messages.map((m) => ({ role: m.role, content: m.content })),
       ],
       max_tokens: MAX_OUTPUT_TOKENS,
@@ -387,7 +422,14 @@ export default async function handler(req, res) {
 
     // Which candidate won. A model name isn't sensitive, and without this the
     // only way to know which one answered is to dig through the Vercel logs.
-    send("model", { model: resolvedModel });
+    send("model", {
+      model: resolvedModel,
+      mode,
+      promptChars: systemContent.length,
+      retrieved: retrieved
+        ? retrieved.map((r) => ({ heading: r.heading, score: +r.score.toFixed(3) }))
+        : null,
+    });
 
     // The prompt forbids code, and the model ignores it — it declines, then
     // helpfully writes the snippet anyway. Instructions clearly aren't enough,
