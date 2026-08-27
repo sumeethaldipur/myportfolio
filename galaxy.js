@@ -9,13 +9,30 @@
 // #hash is honoured.
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
-if (!location.hash) {
+// A RELOAD should start at the top, even when a #hash is sitting in the URL
+// from a nav click earlier in the session — otherwise refreshing drops the
+// visitor back into whatever section they last jumped to. Following a shared
+// link like /#experience is a different intent and still honours the hash.
+const navEntry = performance.getEntriesByType("navigation")[0];
+const isReload = navEntry
+  ? navEntry.type === "reload"
+  : performance.navigation && performance.navigation.type === 1; // older Safari
+
+function toTop() {
   window.scrollTo(0, 0);
-  // Again after load: fonts and images finish after DOMContentLoaded and can
+}
+
+if (isReload || !location.hash) {
+  // Strip the stale hash so the next refresh behaves the same way, and so the
+  // URL matches where the visitor actually is. replaceState avoids adding a
+  // history entry and avoids the jump a direct hash assignment would cause.
+  if (isReload && location.hash) {
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  toTop();
+  // Again after load: fonts and images settle after DOMContentLoaded and can
   // nudge the page on their own.
-  window.addEventListener("load", () => {
-    if (!location.hash) window.scrollTo(0, 0);
-  });
+  window.addEventListener("load", toTop);
 } else {
   // Restore the anchor behaviour the browser would have given us.
   window.addEventListener("load", () => {
