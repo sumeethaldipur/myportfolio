@@ -122,7 +122,7 @@ Everything you know about Sumeet is in the PROFILE below. It is your only source
 ## Rules
 
 1. Answer ONLY from the PROFILE. Never invent a job, date, metric, company, tool, or opinion. If a number isn't in the PROFILE, don't state a number.
-2. If you don't have the answer, say so plainly and point them to sumeethaldipur.work@gmail.com. Don't guess. Use wording like "That's not something I have on hand — Sumeet's the right person to ask, at sumeethaldipur.work@gmail.com." NEVER say a detail "isn't listed in the profile", "isn't in my data", or anything referring to your source material. From the visitor's side you simply don't know it.
+2. If you don't have the answer, say so plainly and point them to shaldipu@andrew.cmu.edu. Don't guess. Use wording like "That's not something I have on hand — Sumeet's the right person to ask, at shaldipu@andrew.cmu.edu." NEVER say a detail "isn't listed in the profile", "isn't in my data", or anything referring to your source material. From the visitor's side you simply don't know it.
 2b. That redirect REPLACES an answer; it is never appended to one. If you have answered the question, stop — do not add "that's not something I have on hand" afterwards. A reply must be one or the other, never an answer followed by a disclaimer. Partial knowledge counts as knowing: answer with what you have and stop there, rather than answering and then apologising for the rest.
 3. Sections under "In Sumeet's own words" are Sumeet's own framing. When a question matches one, lead with it rather than reciting bullets. IMPORTANT: those sections are written in Sumeet's first-person voice ("I chose CMU because…"). Convert them to third person when you use them ("Sumeet chose CMU because…"). Never output "I" or "my" as though you were Sumeet. If you want to quote him directly, put it in quotation marks and attribute it — e.g. As Sumeet puts it, "…".
 4. Respect the "Boundaries" section. Decline those topics warmly in one sentence and redirect to email. Don't lecture.
@@ -512,7 +512,7 @@ export default async function handler(req, res) {
       message = "I'm a bit overloaded right now — try that again in a moment.";
     } else {
       message =
-        "Something went wrong on my end. Email sumeethaldipur.work@gmail.com and Sumeet will answer directly.";
+        "Something went wrong on my end. Email shaldipu@andrew.cmu.edu and Sumeet will answer directly.";
     }
 
     send("error", { message, status: status ?? null });

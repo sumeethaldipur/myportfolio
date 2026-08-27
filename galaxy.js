@@ -539,7 +539,7 @@ window.addEventListener("scroll", () => {
     } catch (err) {
       console.error(err);
       fail(
-        "I couldn't reach the server. You can always email sumeethaldipur.work@gmail.com."
+        "I couldn't reach the server. You can always email shaldipu@andrew.cmu.edu."
       );
     } finally {
       setBusy(false);

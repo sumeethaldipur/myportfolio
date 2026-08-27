@@ -19,18 +19,18 @@
 - **Current role:** Product Manager (most recently Product Manager II at
   ShareFile, Progress Software)
 - **Location:** Mountain View, CA (San Francisco Bay Area)
-- **Email:** sumeethaldipur.work@gmail.com
+- **Email:** shaldipu@andrew.cmu.edu
 - **Phone:** (650) 764-9078
 - **LinkedIn:** linkedin.com/in/shaldipur
 - **Portfolio:** sumeethaldipur.github.io/myportfolio
 
 ## Summary
 
-Product manager with three years of end-to-end ownership of technical products
-across enterprise B2B software and consumer marketplaces. Computer engineering
-background, hands-on with Python and SQL, having shipped LLM-based matching and
-validation systems to production. MS in Software Management at Carnegie Mellon,
-conferral December 2027.
+Product Manager with three years of experience in end-to-end ownership of
+technical products across enterprise B2B software and consumer marketplaces.
+Computer engineering background, hands-on with Python and SQL, having shipped
+LLM-based matching and validation systems to production. MS in Software
+Management at Carnegie Mellon University, conferral December 2027.
 
 Cumulative reach across products owned: 175M+ users.
 
@@ -39,8 +39,7 @@ Cumulative reach across products owned: 175M+ users.
 **This is the single most important thing for a recruiter to learn.**
 
 - Enrolled at **Carnegie Mellon University**, MS in Software Management,
-  Mountain View campus, **Aug 2026 – Dec 2027**, specializing in **AI Product
-  Management**.
+  Mountain View campus, **Aug 2026 – Dec 2027**.
 - **Available May 2027 for a 12-week internship** (Summer 2027).
 - **Conferral December 2027** — a full semester remains after the summer
   internship window, so a return offer has a natural runway.
@@ -50,66 +49,58 @@ Cumulative reach across products owned: 175M+ users.
 
 ### Carnegie Mellon University — Aug 2026 to Dec 2027
 Master of Science in Software Management. Mountain View, CA.
-Specialization in AI Product Management. Industry Connection Fellow.
+Coursework: Product Management, AI Engineering Fundamentals, Product
+Leadership, Problem Discovery & Definition.
 
 ### Sardar Patel Institute of Technology — Aug 2019 to May 2023
 Bachelor of Technology, Computer Engineering. Mumbai, India.
 GPA 3.86 / 4.00.
+Coursework: Data Structures & Algorithms, Computer Networks, Operating
+Systems, Database Management Systems.
 
 ## Professional experience
 
 ### Product Manager II — ShareFile, Progress Software (formerly Citrix ShareFile)
-**Apr 2025 – Jul 2026**
+**Apr 2025 – Jul 2026 · Bengaluru, India**
 
-Owned strategy, roadmap, and success criteria for ShareFile's mobile and
-desktop apps, serving **6M+ business users**. Worked with 8 engineers, a
-designer, and a UX researcher across **11 releases** shipped behind feature
-flags.
+- **Cut client resubmissions from 32% to 18%** for tasks assigned by service
+  providers, by introducing ML-based document validation on uploads.
+- **Led strategy and roadmap and defined success criteria** for ShareFile's
+  **3 mobile and desktop apps** (**6M+ business users**).
+- **Scaled mobile adoption:** spearheaded the 0-to-1 development of *ShareFile
+  for Clients*, which accounts for **23% of all tasks completed on ShareFile**
+  and reached **270K downloads within its first six months**.
+- **Reduced client task completion time by 43%** by introducing tailored
+  notification and reminder flows in the client app.
+- **Deployed MCP agents across 6 APIs** (Salesforce, Jira, and others),
+  enabling the entire product team to query customer signals in natural
+  language and automate ticket triage.
 
-- **ShareFile for Clients — 0-to-1 mobile app.** Research showed clients were
-  missing deadlines because reminders were buried in email and they had no
-  desktop access. Reached **23% of client task completions in six months**.
-- **Cut client task completion time 43%.** Telemetry showed clients never
-  started tasks rather than abandoning mid-flow, so generic email reminders
-  gave way to in-app notifications tailored to request type.
-- **Raised desktop eSignature usage 31%** by replacing a three-step initiation
-  path with a single post-save prompt, after finding power users bypassed the
-  app because folder navigation was slower.
-- **ML-based upload validation.** Flags mismatched client uploads
-  pre-submission, with precision and false-positive thresholds set so correct
-  files were never blocked. **Resubmissions fell from 32% to 18%.**
-- **MCP agents over the Salesforce, JIRA, and Pendo REST APIs**, replacing
-  manual ticket triage with natural-language querying of customer signals.
+### Associate Product Manager — Naukri.com, Info Edge
+**Oct 2024 – Mar 2025 · Noida, India**
 
-### Associate Product Manager — Naukri.com (Info Edge India Ltd.)
-**Oct 2024 – Mar 2025**
+India's largest job portal.
 
-Owned the **taxonomy charter** for India's largest job platform (**120M+
-jobseekers**) — the data layer powering matching and search across **14 Info
-Edge companies**.
-
-- Built **LLM-based entity resolution pipelines in Python**, raising attribute
-  match rates against Naukri's database: **location 51% → 98%**,
-  **language 33% → 93%**, **institute 63% → 88%**.
-- Grew the institute database from **21K to 50K** by reconciling AICTE
-  government records with public sources, auto-accepting high-confidence
-  matches and routing anything below 90% similarity to human labelling.
+- **Enriched 110K+ Indian localities with 98% sampled accuracy** by using LLMs
+  for geospatial entity resolution and geocoding with human-in-the-loop
+  validation, powering job recommendations for **120M+ jobseekers**.
+- **Expanded jobseeker-institute mapping from 51% to 96%** by enriching the
+  database through crawling trusted sources, using similarity scores to
+  automate high-confidence matches and routing the rest for human labelling.
 
 ### Associate Product Manager — WorkIndia
-**Jul 2023 – Sep 2024**
+**Jul 2023 – Sep 2024 · Bengaluru, India**
 
-India's largest blue- and gray-collar job portal. Owned **lead relevance** for
-a two-sided marketplace with **50M+ jobseekers** and **74K+ employers**.
+Blue- and gray-collar job platform.
 
-- Traced paying-employer dissatisfaction to irrelevant applications via **40+
-  interviews and 4,000+ survey responses**. Shipped role-aware matching
-  weighted by job category, lifting **relevant applications 54%** and **leads
-  consumed per employer 57%**.
-- **Raised employer NPS from 13 to 52** by defining a relevance metric that
-  correlated with NPS, replacing quarterly survey lag with a continuous signal.
-- Replaced English-only onboarding with an image-based flow after testing
-  showed jobseekers could not parse the copy and India's language breadth made
-  full localization unattainable. **Funnel improved 48%.**
+- **Boosted NPS by 39 points, job application relevance by 54%, and candidates
+  contacted per recruiter by 57%** by developing role-specific matching
+  algorithms, based on **40+ user interviews, 40K+ survey responses** and
+  usage data.
+- **Improved the onboarding funnel by 48%** on the jobseeker app (**50M+
+  users**) by replacing English-only flows with an image-based approach —
+  jobseekers could not read the text, and India's linguistic diversity made
+  localization infeasible.
 
 ## Internships
 
@@ -125,29 +116,41 @@ places**, increasing site visitors **34%** and app downloads **27%**.
 Ran IT General Controls testing across access management, change management,
 and data center operations for BFSI clients.
 
+## Projects
+
+### AI-Powered Portfolio Assistant
+*JavaScript, Node.js, Vercel Serverless, NVIDIA Nemotron 3.5, RAG (Jina
+Embeddings), OpenAI SDK, SSE, HTML/CSS*
+
+This assistant. A portfolio featuring an LLM assistant that answers recruiter
+questions about Sumeet's background, experience and projects, combining RAG
+with Jina embeddings and full-context prompting through an automatic fallback
+mechanism.
+
+### Moody.ai — Emotion-Aware Adaptive Activity Recommendation System
+*Python, TensorFlow/Keras, OpenCV, scikit-learn, pandas, NumPy, Flask,
+PostgreSQL, Gunicorn, JavaScript, Bootstrap, Git*
+
+An emotion-aware recommendation system that detects a user's mood from facial
+expressions and recommends personalized activities to improve well-being.
+**Published at IEEE INCET 2023.**
+
 ## Skills
 
-**Product:** end-to-end product ownership, 0-to-1 product development, product
-requirements documents, product strategy and roadmapping, prioritization,
-metric definition, user research, root cause analysis, two-sided marketplaces,
-Scrum.
+**Product and program management:** product lifecycle management, PRDs,
+roadmapping and release planning, strategy, PRFAQ, customer research,
+competitive analysis, data-driven decision making, risk mitigation, industry
+mapping, data analytics, go-to-market, stakeholder alignment, problem solving,
+OKRs and KPIs, Agile methodologies, UX design, A/B testing, feature
+prioritization, prompt engineering.
 
-**Technical:** system design, REST APIs, third-party integrations, data
-modeling, data pipelines, AWS, feature flags, phased rollout, incident
-management.
-
-**AI and machine learning:** generative AI, agentic AI, AI agent design, MCP,
-LLM pipelines, prompt engineering, model evaluation, precision and
-false-positive tradeoffs, human-in-the-loop labelling.
-
-**Data and tools:** SQL, Python, A/B testing, event instrumentation, data
-analysis, Google Analytics, Pendo, Tableau, JIRA, Figma, Salesforce.
+**Technologies:** Python, SQL, HTML/CSS, JavaScript, generative AI, LLMs, RAG,
+AI evals, AWS, Tableau, Jira, Figma, Salesforce, REST APIs.
 
 ## Awards, leadership, and certifications
 
 - **Mastering Generative AI for Product Innovation**, Stanford University (2025).
-- **Best Use of Data Analytics**, CX Excellence Awards (2024), for relevance
-  and matching work at WorkIndia.
+- **Best Use of Data Analytics**, CX Excellence Awards (2024).
 - **Winner**, Entrepreneurship Case Competition (2022), against 2,000+ teams.
 - **Runner-Up** at two Entrepreneurship Case Competitions (2021), each with
   3,000+ teams.
