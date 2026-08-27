@@ -38,6 +38,13 @@ const MODEL_UNAVAILABLE = new Set([403, 404, 410]);
 
 const TOP_K = 4;
 
+// Retrieval is a preamble to the real work — the answer still has to generate
+// afterwards inside the same 60s function budget. These caps keep it a
+// preamble instead of the whole invocation.
+const PROBE_TIMEOUT_MS = 8000; // one candidate's chance to respond
+const INDEX_BUDGET_MS = 25000; // building the index over all chunks
+const QUERY_BUDGET_MS = 10000; // embedding a single question
+
 let indexPromise = null;
 let resolvedEmbedModel = null;
 
@@ -86,7 +93,7 @@ export function buildChunks(markdown) {
   return chunks;
 }
 
-async function callEmbed(client, model, inputs, inputType) {
+async function callEmbed(client, model, inputs, inputType, timeout) {
   const res = await client.embeddings.create(
     {
       model,
@@ -94,7 +101,9 @@ async function callEmbed(client, model, inputs, inputType) {
       input_type: inputType, // "passage" when indexing, "query" when searching
       truncate: "END",
     },
-    { maxRetries: 0 }
+    // BOTH matter. maxRetries alone still lets a hanging model block until the
+    // whole function times out; timeout alone gets multiplied by the retries.
+    { maxRetries: 0, timeout }
   );
   // The API does not guarantee ordering, so sort by index before use.
   return res.data
@@ -103,24 +112,43 @@ async function callEmbed(client, model, inputs, inputType) {
     .map((d) => d.embedding);
 }
 
-async function embed(client, inputs, inputType) {
+// A model that never answers is as unusable as one that 404s, and costs far
+// more to discover. Treat a timeout as unavailable and move on.
+function isUnusable(err) {
+  return (
+    MODEL_UNAVAILABLE.has(err?.status) ||
+    err?.name === "APIConnectionTimeoutError" ||
+    /timed? ?out/i.test(err?.message ?? "")
+  );
+}
+
+async function embed(client, inputs, inputType, budgetMs) {
   // Once one works, stay on it — mixing embedders would put passages and
   // queries in different vector spaces and make similarity meaningless.
   if (resolvedEmbedModel) {
-    return callEmbed(client, resolvedEmbedModel, inputs, inputType);
+    return callEmbed(client, resolvedEmbedModel, inputs, inputType, budgetMs);
   }
 
+  const startedAt = Date.now();
   const attempts = [];
+
   for (const model of EMBED_CANDIDATES) {
+    const remaining = budgetMs - (Date.now() - startedAt);
+    if (remaining < 2000) {
+      attempts.push({ model, status: "skipped-no-budget" });
+      break;
+    }
+    // No single probe may eat the whole allowance.
+    const timeout = Math.min(PROBE_TIMEOUT_MS, remaining);
     try {
-      const vectors = await callEmbed(client, model, inputs, inputType);
+      const vectors = await callEmbed(client, model, inputs, inputType, timeout);
       resolvedEmbedModel = model;
       console.log(`Using embedding model: ${model}`);
       return vectors;
     } catch (err) {
-      if (!MODEL_UNAVAILABLE.has(err?.status)) throw err;
-      attempts.push({ model, status: err.status });
-      console.warn(`Embedding model unavailable (${err.status}): ${model}`);
+      if (!isUnusable(err)) throw err;
+      attempts.push({ model, status: err?.status ?? err?.name ?? "error" });
+      console.warn(`Embedding model unusable (${attempts.at(-1).status}): ${model}`);
     }
   }
   throw new NoEmbeddingModelError(attempts);
@@ -149,7 +177,8 @@ export function ensureIndex(client, knowledge) {
       const vectors = await embed(
         client,
         chunks.map((c) => c.text),
-        "passage"
+        "passage",
+        INDEX_BUDGET_MS
       );
       return chunks.map((c, i) => ({ ...c, vector: vectors[i] }));
     })().catch((err) => {
@@ -162,7 +191,7 @@ export function ensureIndex(client, knowledge) {
 
 export async function retrieve(client, knowledge, query, k = TOP_K) {
   const index = await ensureIndex(client, knowledge);
-  const [queryVector] = await embed(client, [query], "query");
+  const [queryVector] = await embed(client, [query], "query", QUERY_BUDGET_MS);
 
   return index
     .map((c) => ({ heading: c.heading, text: c.text, score: cosine(queryVector, c.vector) }))
