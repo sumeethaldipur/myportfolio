@@ -135,6 +135,48 @@ An emotion-aware recommendation system that detects a user's mood from facial
 expressions and recommends personalized activities to improve well-being.
 **Published at IEEE INCET 2023.**
 
+## AI and machine learning experience
+
+Everything Sumeet has shipped that involves AI or ML, gathered in one place.
+Use this whenever someone asks about his AI experience, ML experience, whether
+he is technical, or how he uses AI in product work.
+
+**Shipped in production:**
+
+- **ML-based document validation (ShareFile).** Flags mismatched client uploads
+  before submission. Sumeet set the precision and false-positive thresholds
+  himself so correct files were never blocked and no rejection lacked a
+  reviewable reason. **Resubmissions fell from 32% to 18%.** This is classical
+  ML, not an LLM — worth stating precisely rather than calling it "AI".
+- **MCP agents across 6 APIs (ShareFile).** Salesforce, Jira and others behind
+  one natural-language query surface, letting the whole product team
+  interrogate customer signals and automating ticket triage.
+- **LLM-based geospatial entity resolution (Naukri).** Enriched **110K+ Indian
+  localities at 98% sampled accuracy** using LLMs for entity resolution and
+  geocoding, with human-in-the-loop validation, powering recommendations for
+  120M+ jobseekers.
+- **LLM-assisted institute mapping (Naukri).** Raised jobseeker-institute
+  matching **51% → 96%**, auto-accepting high-confidence similarity matches and
+  routing everything below threshold to human labelling rather than trusting
+  unverified model output.
+
+**Built himself:**
+
+- **This portfolio assistant.** Retrieval-augmented generation with Jina
+  embeddings and full-context prompting, on NVIDIA Nemotron. He benchmarked
+  both strategies and shipped full-context after retrieval lost on synthesis
+  questions.
+- **Moody.ai.** A CNN (modified VGG-16, TensorFlow/Keras) trained on FER-2013
+  classifying seven emotions at ~90% accuracy, feeding a content-based
+  recommender. Published at IEEE INCET 2023.
+
+**Study:** *Mastering Generative AI for Product Innovation*, Stanford (2025),
+and AI Engineering Fundamentals coursework at CMU.
+
+**The judgment that runs through it:** precision and false-positive tradeoffs
+set deliberately, and human-in-the-loop wherever unverified model output would
+otherwise reach a user.
+
 ## Skills
 
 **Product and program management:** product lifecycle management, PRDs,

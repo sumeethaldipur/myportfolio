@@ -304,6 +304,15 @@ window.addEventListener("scroll", () => {
   const html = document.documentElement;
   let scrollRaf = null;
 
+  // Always clear the inline override rather than restoring a captured value.
+  // Capturing was the bug: if a run was cancelled mid-flight the inline "auto"
+  // survived, the next run captured THAT as its "previous", and restored it —
+  // making the override permanent and silently killing the CSS
+  // `scroll-behavior: smooth` that every anchor link relies on.
+  function releaseScrollLock() {
+    html.style.scrollBehavior = "";
+  }
+
   // Before anything is sent, the composer is the subject. Once there's a
   // conversation, the conversation is — centring the input then would push the
   // replies off the top of the screen.
@@ -326,7 +335,10 @@ window.addEventListener("scroll", () => {
   // and decelerates into place — and because the goal is re-read every frame,
   // it tracks the collapse instead of racing it.
   function centerSubject(duration = 420) {
-    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    if (scrollRaf) {
+      cancelAnimationFrame(scrollRaf);
+      releaseScrollLock(); // a cancelled run must not leave the override behind
+    }
 
     if (prefersReducedMotion) {
       window.scrollTo(0, goalScrollY());
@@ -338,7 +350,6 @@ window.addEventListener("scroll", () => {
     // on the current gap means never following the change that's coming. If
     // there genuinely is nothing to do, the loop just idles and exits.
 
-    const previousBehavior = html.style.scrollBehavior;
     html.style.scrollBehavior = "auto";
 
     const startedAt = performance.now();
@@ -367,7 +378,7 @@ window.addEventListener("scroll", () => {
       } else {
         window.scrollTo(0, goalScrollY());
         scrollRaf = null;
-        html.style.scrollBehavior = previousBehavior;
+        releaseScrollLock();
       }
     };
     scrollRaf = requestAnimationFrame(step);
