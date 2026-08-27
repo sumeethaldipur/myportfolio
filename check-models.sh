@@ -55,5 +55,39 @@ for M in "${MODELS[@]}"; do
   printf "%-42s %-8s %ss\n" "$M" "$LABEL" "$ELAPSED"
 done
 
+
 echo
-echo "Put the fastest model marked OK first in MODEL_CANDIDATES (api/chat.js)."
+printf "%-42s %-8s %s\n" "EMBEDDING MODEL" "STATUS" "TIME"
+printf "%-42s %-8s %s\n" "---------------" "------" "----"
+
+EMBED=(
+  "nvidia/nv-embedqa-mistral-7b-v2"
+  "nvidia/embed-qa-4"
+  "snowflake/arctic-embed-l"
+  "nvidia/nemotron-3-embed-1b"
+  "nvidia/llama-3.2-nv-embedqa-1b-v1"
+)
+
+for M in "${EMBED[@]}"; do
+  START=$(date +%s)
+  # input_type is required by NVIDIA's retrieval embedders.
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 25 \
+    https://integrate.api.nvidia.com/v1/embeddings \
+    -H "Authorization: Bearer ${NVIDIA_API_KEY}" \
+    -H "Content-Type: application/json" \
+    -d "{\"model\":\"${M}\",\"input\":[\"hello\"],\"input_type\":\"query\"}" \
+    2>/dev/null)
+  END=$(date +%s)
+  case "$CODE" in
+    200) LABEL="OK" ;;
+    000) LABEL="TIMEOUT" ;;
+    404|410) LABEL="$CODE NO" ;;
+    403) LABEL="403 KEY" ;;
+    *) LABEL="$CODE" ;;
+  esac
+  printf "%-42s %-8s %ss\n" "$M" "$LABEL" "$((END - START))"
+done
+
+echo
+echo "Chat: put the fastest OK model first in MODEL_CANDIDATES (api/chat.js)."
+echo "Embeddings: put the first OK model first in EMBED_CANDIDATES (api/_rag.js)."

@@ -16,10 +16,42 @@
 // different projections, selected by `input_type`. Embedding a query as a
 // passage still returns a vector and still ranks results — it just ranks them
 // worse, with nothing in the logs to say so.
-const EMBED_MODEL = "nvidia/llama-3.2-nv-embedqa-1b-v1";
+//
+// Being listed in the public catalog does NOT mean an account may call it:
+// llama-3.2-nv-embedqa-1b-v1 returns 404 "not found in account" on this key,
+// exactly as gemma-4 and deepseek-v4-flash did for chat. So the same pattern
+// applies — try candidates in order, fall through on unavailable, remember the
+// one that worked.
+//
+// To see which of these your key can actually reach:
+//   NVIDIA_API_KEY=... ./check-models.sh
+const EMBED_CANDIDATES = [
+  "nvidia/nv-embedqa-mistral-7b-v2",
+  "nvidia/embed-qa-4",
+  "snowflake/arctic-embed-l",
+  "nvidia/nemotron-3-embed-1b",
+  "nvidia/llama-3.2-nv-embedqa-1b-v1",
+];
+
+// Statuses meaning "this model isn't usable", as opposed to a real fault.
+const MODEL_UNAVAILABLE = new Set([403, 404, 410]);
+
 const TOP_K = 4;
 
 let indexPromise = null;
+let resolvedEmbedModel = null;
+
+/** Thrown when no embedding model on the account can be reached at all. */
+export class NoEmbeddingModelError extends Error {
+  constructor(attempts) {
+    super(
+      "No embedding model available to this account. Tried: " +
+        attempts.map((a) => `${a.model} (${a.status})`).join(", ")
+    );
+    this.name = "NoEmbeddingModelError";
+    this.attempts = attempts;
+  }
+}
 
 /**
  * Split the profile on markdown headings.
@@ -54,18 +86,44 @@ export function buildChunks(markdown) {
   return chunks;
 }
 
-async function embed(client, inputs, inputType) {
-  const res = await client.embeddings.create({
-    model: EMBED_MODEL,
-    input: inputs,
-    input_type: inputType, // "passage" when indexing, "query" when searching
-    truncate: "END",
-  });
+async function callEmbed(client, model, inputs, inputType) {
+  const res = await client.embeddings.create(
+    {
+      model,
+      input: inputs,
+      input_type: inputType, // "passage" when indexing, "query" when searching
+      truncate: "END",
+    },
+    { maxRetries: 0 }
+  );
   // The API does not guarantee ordering, so sort by index before use.
   return res.data
     .slice()
     .sort((a, b) => a.index - b.index)
     .map((d) => d.embedding);
+}
+
+async function embed(client, inputs, inputType) {
+  // Once one works, stay on it — mixing embedders would put passages and
+  // queries in different vector spaces and make similarity meaningless.
+  if (resolvedEmbedModel) {
+    return callEmbed(client, resolvedEmbedModel, inputs, inputType);
+  }
+
+  const attempts = [];
+  for (const model of EMBED_CANDIDATES) {
+    try {
+      const vectors = await callEmbed(client, model, inputs, inputType);
+      resolvedEmbedModel = model;
+      console.log(`Using embedding model: ${model}`);
+      return vectors;
+    } catch (err) {
+      if (!MODEL_UNAVAILABLE.has(err?.status)) throw err;
+      attempts.push({ model, status: err.status });
+      console.warn(`Embedding model unavailable (${err.status}): ${model}`);
+    }
+  }
+  throw new NoEmbeddingModelError(attempts);
 }
 
 function cosine(a, b) {
@@ -112,4 +170,7 @@ export async function retrieve(client, knowledge, query, k = TOP_K) {
     .slice(0, k);
 }
 
-export { EMBED_MODEL, TOP_K };
+export { EMBED_CANDIDATES, TOP_K };
+export function embedModelInUse() {
+  return resolvedEmbedModel;
+}

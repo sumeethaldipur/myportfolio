@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import OpenAI from "openai";
-import { retrieve, TOP_K } from "./_rag.js";
+import { retrieve, TOP_K, embedModelInUse, NoEmbeddingModelError } from "./_rag.js";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -325,10 +325,23 @@ export default async function handler(req, res) {
     // `model` is supplied per-attempt by the candidate loop below.
     let systemContent = SYSTEM_PROMPT;
     let retrieved = null;
+    let effectiveMode = mode;
+    let ragError = null;
+
     if (mode === "rag") {
-      const question = messages[messages.length - 1].content;
-      retrieved = await retrieve(getClient(), KNOWLEDGE, question, TOP_K);
-      systemContent = ragPrompt(retrieved);
+      try {
+        const question = messages[messages.length - 1].content;
+        retrieved = await retrieve(getClient(), KNOWLEDGE, question, TOP_K);
+        systemContent = ragPrompt(retrieved);
+      } catch (err) {
+        // Retrieval is an experiment; full-context is the product. If no
+        // embedding model on this account can be reached, answer anyway rather
+        // than showing a visitor an error for a feature they didn't ask for.
+        if (!(err instanceof NoEmbeddingModelError)) throw err;
+        console.error(err.message);
+        effectiveMode = "full";
+        ragError = err.message;
+      }
     }
 
     const request = {
@@ -424,7 +437,10 @@ export default async function handler(req, res) {
     // only way to know which one answered is to dig through the Vercel logs.
     send("model", {
       model: resolvedModel,
-      mode,
+      mode: effectiveMode,
+      requestedMode: mode,
+      embedModel: embedModelInUse(),
+      ragError,
       promptChars: systemContent.length,
       retrieved: retrieved
         ? retrieved.map((r) => ({ heading: r.heading, score: +r.score.toFixed(3) }))
