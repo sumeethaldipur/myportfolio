@@ -1554,7 +1554,13 @@ body.chat-engaged .hero-chat::before { opacity: 1.25; }
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 2px;
+  /* `overflow-x: auto` forces overflow-y to compute to auto too, so this box
+     clips vertically as well. The chips lift 2px on hover, which was getting
+     sliced off at the top edge. Pad above the lift and pull the box back up by
+     the same amount so nothing moves. */
+  padding-top: 10px;
+  margin-top: -10px;
+  padding-bottom: 4px;
 }
 .chat-suggestions::-webkit-scrollbar { display: none; }
 .chat-suggestions button { flex: 0 0 auto; white-space: nowrap; }
