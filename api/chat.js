@@ -11,6 +11,8 @@ import { retrieve, TOP_K, embedModelInUse, NoEmbeddingModelError } from "./_rag.
 // Origins allowed to call this endpoint. The site is served from GitHub Pages,
 // which is a different origin from this function, so CORS has to be explicit.
 const ALLOWED_ORIGINS = new Set([
+  "https://sumeethaldipur.com", // custom domain (apex redirects to www)
+  "https://www.sumeethaldipur.com", // custom domain, canonical host
   "https://myportfolio-murex-six-91.vercel.app", // the Vercel deployment itself
   "https://sumeethaldipur.github.io", // the GitHub Pages copy
   "http://localhost:8000",

@@ -254,11 +254,17 @@ window.addEventListener("scroll", () => {
   // relative path works and CORS never applies. From GitHub Pages it's a
   // different origin and needs the absolute URL.
   const VERCEL_API = "https://myportfolio-murex-six-91.vercel.app/api/chat";
-  const sameOrigin =
-    location.hostname.endsWith(".vercel.app") ||
-    location.hostname === "localhost" ||
-    location.hostname === "127.0.0.1";
-  const API_URL = sameOrigin ? "/api/chat" : VERCEL_API;
+  // Default to the SAME ORIGIN. Anywhere the Vercel deployment is served from —
+  // the .vercel.app URL, a custom domain, a preview build — the function lives
+  // at /api/chat on that same host, so a relative path needs no CORS at all.
+  // Listing hosts instead was the bug: a newly attached custom domain fell
+  // through to the absolute URL, turning every request cross-origin and
+  // getting it rejected as an un-allowlisted origin.
+  //
+  // GitHub Pages is the one genuine exception: it serves the static site but
+  // cannot run the function, so from there the request must go out to Vercel.
+  const isStaticOnlyHost = location.hostname.endsWith(".github.io");
+  const API_URL = isStaticOnlyHost ? VERCEL_API : "/api/chat";
 
   const log = document.getElementById("chat-log");
   const form = document.getElementById("chat-form");
