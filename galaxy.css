@@ -781,6 +781,19 @@ body {
 }
 .proj-card p { color: var(--text-dim); font-size: 0.92rem; }
 .proj-card strong { color: var(--text); font-weight: 600; }
+.proj-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+}
+.proj-links a {
+  color: var(--accent-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.proj-links a:hover { text-decoration: underline; }
 
 /* Skills */
 .skills-grid {

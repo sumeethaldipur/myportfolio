@@ -9,8 +9,8 @@
   your resume — no compensation numbers, no candid takes on employers, no
   private contact details beyond what's already on the site.
 
-  Source of truth: Sumeet-Haldipur-Resume.pdf (Aug 2026), plus the portfolio
-  site and public LinkedIn.
+  Source of truth: Sumeet-Haldipur-Resume.pdf (Sep 2026, "Experiment 1"),
+  plus the portfolio site and public LinkedIn.
 -->
 
 ## Identity
@@ -22,7 +22,7 @@
 - **Email:** shaldipu@andrew.cmu.edu
 - **Phone:** (650) 764-9078
 - **LinkedIn:** linkedin.com/in/shaldipur
-- **Portfolio:** sumeethaldipur.github.io/myportfolio
+- **Portfolio:** sumeethaldipur.com
 
 ## Summary
 
@@ -49,6 +49,7 @@ Cumulative reach across products owned: 175M+ users.
 
 ### Carnegie Mellon University — Aug 2026 to Dec 2027
 Master of Science in Software Management. Mountain View, CA.
+Teaching Assistant, 18-658SV Software Requirements & Interaction Design.
 Coursework: Product Management, AI Engineering Fundamentals, Product
 Leadership, Problem Discovery & Definition.
 
@@ -63,44 +64,48 @@ Systems, Database Management Systems.
 ### Product Manager II — ShareFile, Progress Software (formerly Citrix ShareFile)
 **Apr 2025 – Jul 2026 · Bengaluru, India**
 
-- **Cut client resubmissions from 32% to 18%** for tasks assigned by service
-  providers, by introducing ML-based document validation on uploads.
+ShareFile is a **$350M ARR** business.
+
+- **Improved monthly subscription retention by 12%** by leading the 0-to-1
+  launch of *ShareFile for Clients*, working across **14 cross-functional
+  stakeholders**.
+- **Cut document resubmissions by 44%** (from 32% to 18%) by shipping LLM
+  validation that flagged incorrect uploads at intake.
+- **Reduced client task completion time by 43%** by tailoring notification
+  flows to each task type.
+- **Accelerated idea-to-backlog time by 53% for 18 PMs** by creating **6 MCP
+  agents** over Salesforce, Jira and other APIs, letting the whole product team
+  query customer signals in natural language.
 - **Led strategy and roadmap and defined success criteria** for ShareFile's
-  **3 mobile and desktop apps** (**6M+ business users**).
-- **Scaled mobile adoption:** spearheaded the 0-to-1 development of *ShareFile
-  for Clients*, which accounts for **23% of all tasks completed on ShareFile**
-  and reached **270K downloads within its first six months**.
-- **Reduced client task completion time by 43%** by introducing tailored
-  notification and reminder flows in the client app.
-- **Deployed MCP agents across 6 APIs** (Salesforce, Jira, and others),
-  enabling the entire product team to query customer signals in natural
-  language and automate ticket triage.
+  **3 mobile and desktop apps** (**6M+ business users**) across Windows, Mac,
+  Android and iOS.
 
 ### Associate Product Manager — Naukri.com, Info Edge
 **Oct 2024 – Mar 2025 · Noida, India**
 
 India's largest job portal.
 
-- **Enriched 110K+ Indian localities with 98% sampled accuracy** by using LLMs
-  for geospatial entity resolution and geocoding with human-in-the-loop
-  validation, powering job recommendations for **120M+ jobseekers**.
-- **Expanded jobseeker-institute mapping from 51% to 96%** by enriching the
-  database through crawling trusted sources, using similarity scores to
-  automate high-confidence matches and routing the rest for human labelling.
+- **Lifted daily recruiter-candidate connections by 31%** by normalizing
+  misspelled institute data across **120M+ profiles** — coverage moved from
+  51% to 96% by crawling trusted sources, with similarity scores automating
+  high-confidence matches and everything below threshold routed for human
+  labelling.
+- **Raised the job application rate by 34%** by using LLMs to map **110K+
+  localities at 98% accuracy**, powering radius-based search.
 
 ### Associate Product Manager — WorkIndia
 **Jul 2023 – Sep 2024 · Bengaluru, India**
 
 Blue- and gray-collar job platform.
 
-- **Boosted NPS by 39 points, job application relevance by 54%, and candidates
-  contacted per recruiter by 57%** by developing role-specific matching
-  algorithms, based on **40+ user interviews, 40K+ survey responses** and
-  usage data.
-- **Improved the onboarding funnel by 48%** on the jobseeker app (**50M+
-  users**) by replacing English-only flows with an image-based approach —
-  jobseekers could not read the text, and India's linguistic diversity made
-  localization infeasible.
+- **Increased recruiter NPS by 19 points** on a **50M+ marketplace** by
+  rebuilding the matching algorithm around pain points surfaced in **40+
+  customer interviews**.
+- **Increased onboarding completion by 24%** by replacing text-based signup
+  workflows with image-led ones — jobseekers could not read the text, and
+  India's linguistic diversity made localization infeasible.
+- **Optimized messaging spend by 63% with no engagement drop** by auditing
+  WhatsApp, SMS and IVR sends.
 
 ## Internships
 
@@ -127,13 +132,22 @@ questions about Sumeet's background, experience and projects, combining RAG
 with Jina embeddings and full-context prompting through an automatic fallback
 mechanism.
 
+### Kindling — Evidence-Backed Accountability App
+*Android, Python, LLM APIs, RAG · github.com/sumeethaldipur/kindling*
+
+Reduces an avoided task to a single five-minute, LLM-generated first action,
+then counters self-doubt by retrieving evidence of praise from peers in the
+user's own WhatsApp chat history. Every prompt change is gated behind a Python
+eval harness that scores output quality before release.
+
 ### Moody.ai — Emotion-Aware Adaptive Activity Recommendation System
 *Python, TensorFlow/Keras, OpenCV, scikit-learn, pandas, NumPy, Flask,
 PostgreSQL, Gunicorn, JavaScript, Bootstrap, Git*
 
-An emotion-aware recommendation system that detects a user's mood from facial
-expressions and recommends personalized activities to improve well-being.
-**Published at IEEE INCET 2023.**
+Classifies seven moods with a modified VGG-16 CNN, then shifts from popularity
+ranking to content-based filtering as feedback accumulates.
+**Published at IEEE INCET 2023** (ieeexplore.ieee.org/document/10169983).
+Code: github.com/sumeethaldipur/Moody.ai
 
 ## AI and machine learning experience
 
@@ -143,22 +157,21 @@ he is technical, or how he uses AI in product work.
 
 **Shipped in production:**
 
-- **ML-based document validation (ShareFile).** Flags mismatched client uploads
-  before submission. Sumeet set the precision and false-positive thresholds
-  himself so correct files were never blocked and no rejection lacked a
-  reviewable reason. **Resubmissions fell from 32% to 18%.** This is classical
-  ML, not an LLM — worth stating precisely rather than calling it "AI".
-- **MCP agents across 6 APIs (ShareFile).** Salesforce, Jira and others behind
-  one natural-language query surface, letting the whole product team
-  interrogate customer signals and automating ticket triage.
-- **LLM-based geospatial entity resolution (Naukri).** Enriched **110K+ Indian
-  localities at 98% sampled accuracy** using LLMs for entity resolution and
-  geocoding, with human-in-the-loop validation, powering recommendations for
-  120M+ jobseekers.
-- **LLM-assisted institute mapping (Naukri).** Raised jobseeker-institute
-  matching **51% → 96%**, auto-accepting high-confidence similarity matches and
-  routing everything below threshold to human labelling rather than trusting
-  unverified model output.
+- **LLM document validation (ShareFile).** Flags mismatched client uploads at
+  intake, before submission. Sumeet set the precision and false-positive
+  thresholds himself so correct files were never blocked and no rejection
+  lacked a reviewable reason. **Resubmissions fell 44%, from 32% to 18%.**
+- **6 MCP agents (ShareFile).** Salesforce, Jira and other APIs behind one
+  natural-language query surface, letting the whole product team interrogate
+  customer signals. **Cut idea-to-backlog time 53% for 18 PMs.**
+- **LLM locality mapping (Naukri).** Mapped **110K+ localities at 98%
+  accuracy** to power radius-based search, **raising the job application rate
+  34%**.
+- **LLM-assisted institute normalization (Naukri).** Cleaned misspelled
+  institute data across **120M+ profiles** (coverage 51% → 96%),
+  auto-accepting high-confidence similarity matches and routing everything
+  below threshold to human labelling rather than trusting unverified model
+  output. **Daily recruiter-candidate connections rose 31%.**
 
 **Built himself:**
 
@@ -166,9 +179,14 @@ he is technical, or how he uses AI in product work.
   embeddings and full-context prompting, on NVIDIA Nemotron. He benchmarked
   both strategies and shipped full-context after retrieval lost on synthesis
   questions.
+- **Kindling.** An accountability app that turns an avoided task into one
+  five-minute LLM-generated first action, then uses RAG over the user's own
+  WhatsApp history to surface real praise from peers against self-doubt. Every
+  prompt change ships only after a Python eval harness scores its output.
 - **Moody.ai.** A CNN (modified VGG-16, TensorFlow/Keras) trained on FER-2013
-  classifying seven emotions at ~90% accuracy, feeding a content-based
-  recommender. Published at IEEE INCET 2023.
+  classifying seven emotions at ~90% accuracy, feeding a recommender that
+  shifts from popularity ranking to content-based filtering as feedback
+  accumulates. Published at IEEE INCET 2023.
 
 **Study:** *Mastering Generative AI for Product Innovation*, Stanford (2025),
 and AI Engineering Fundamentals coursework at CMU.
@@ -179,15 +197,15 @@ otherwise reach a user.
 
 ## Skills
 
-**Product and program management:** product lifecycle management, PRDs,
-roadmapping and release planning, strategy, PRFAQ, customer research,
-competitive analysis, data-driven decision making, risk mitigation, industry
-mapping, data analytics, go-to-market, stakeholder alignment, problem solving,
-OKRs and KPIs, Agile methodologies, UX design, A/B testing, feature
-prioritization, prompt engineering.
+**Product:** product discovery, PRDs, roadmapping and release planning,
+backlog prioritization, experimentation, metrics definition, go-to-market,
+Agile/Scrum.
 
-**Technologies:** Python, SQL, HTML/CSS, JavaScript, generative AI, LLMs, RAG,
-AI evals, AWS, Tableau, Jira, Figma, Salesforce, REST APIs.
+**Research:** user interviews, competitive analysis, user segmentation, root
+cause analysis.
+
+**Technical:** Python, SQL, JavaScript, LLMs, RAG, AI evals, prompt
+engineering, MCP, Jira, Confluence, Tableau, Figma.
 
 ## Awards, leadership, and certifications
 
@@ -196,6 +214,8 @@ AI evals, AWS, Tableau, Jira, Figma, Salesforce, REST APIs.
 - **Winner**, Entrepreneurship Case Competition (2022), against 2,000+ teams.
 - **Runner-Up** at two Entrepreneurship Case Competitions (2021), each with
   3,000+ teams.
+- **Industry Connection Fellow**, Carnegie Mellon University — designing
+  career-focused events for students.
 - **General Secretary**, Sardar Patel Institute of Technology, representing
   2,500+ students.
 
