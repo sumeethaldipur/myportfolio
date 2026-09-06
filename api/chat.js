@@ -56,8 +56,24 @@ const NIM_BASE_URL =
 // Do not promote an unverified model to the top. Check it first with
 // ./check-models.sh, then reorder.
 const MODEL_CANDIDATES = [
-  "nvidia/nemotron-3-nano-30b-a3b", // 2026-08-27: what actually answers, ~0.65s
-  "nvidia/nemotron-3-ultra-550b-a55b", // works; slower and more verbose
+  // 2026-09-06: nemotron-3-nano-30b-a3b (the ~0.65s workhorse since 08-27)
+  // vanished from the public catalog; this name appeared in it with `nano`
+  // and `3` transposed, so it reads as a rename. Same size class, so expect
+  // similar latency. Verified present in /v1/models; NOT yet verified as
+  // granted to this account — if it 404s it is skipped in milliseconds, so
+  // sitting first costs nothing.
+  "nvidia/nemotron-nano-3-30b-a3b",
+  // Mid-size backstop, also live as of 2026-09-06. Sits between nano and
+  // ultra so a nano miss doesn't drop straight to the 550B.
+  "nvidia/nemotron-3-super-120b-a12b",
+  // Last resort only. Live and reliable, but too slow to finish inside
+  // FUNCTION_BUDGET_MS on its own — with nano gone this was briefly the only
+  // candidate left, which is what caused the 60s FUNCTION_INVOCATION_TIMEOUTs
+  // on 2026-09-06. Never let this be the sole entry.
+  "nvidia/nemotron-3-ultra-550b-a55b",
+  // Kept out of the active list, not forgotten: nemotron-3-nano-30b-a3b is
+  // gone from the catalog entirely (unlike gemma-4 and 3.5-lightning, which
+  // are listed but not granted). Re-add only if it reappears.
   // nemotron-3.5-lightning was first here and stopped answering. It is still
   // listed in the public catalog, so the failure is per-account, not a
   // retirement — same as gemma-4 before it. Sitting in front, it cost every

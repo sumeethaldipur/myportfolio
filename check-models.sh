@@ -23,6 +23,13 @@ if [ -z "${NVIDIA_API_KEY:-}" ]; then
 fi
 
 MODELS=(
+  # 2026-09-06: nemotron-3-nano-30b-a3b vanished from the public catalog and
+  # this name appeared in it — looks like a rename (nano/3 transposed). It is
+  # the prime suspect for the chat function's 60s timeouts. Test it first.
+  "nvidia/nemotron-nano-3-30b-a3b"
+  # Also live in the catalog as of 2026-09-06; untested on this account.
+  "nvidia/nemotron-3-super-120b-a12b"
+  # Existing entries, kept for comparison.
   "nvidia/nemotron-3.5-lightning-30b-a3b"
   "nvidia/nemotron-3-nano-30b-a3b"
   "nvidia/nemotron-3-ultra-550b-a55b"
