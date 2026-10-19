@@ -134,6 +134,22 @@ questions about Sumeet's background, experience and projects, combining RAG
 with Jina embeddings and full-context prompting through an automatic fallback
 mechanism.
 
+### the right job — Job-Hunting Agent That Compounds
+*Data AI Hackathon, SF · team project · github.com/RoderickQiu/data-ai-hack*
+
+An agent that runs the same job-search loop every day and gets cheaper,
+sharper and quieter each time. The insight is that job search is a memory
+problem, not a search problem: most tools relearn your taste every morning.
+Between day 1 and day 16 it went from **14,820 to 1,180 tokens per run** and
+from **6 questions asked to 0**, while its keep/skip predictions kept
+improving. Two guarantees are enforced in code rather than prompted: it never
+invents experience — every factual sentence in a generated application carries
+a citation to a verified claim, and a deterministic validator rejects the pack
+if one is missing — and it never submits an application on the user's behalf.
+Built on a typed entity graph (Cognee), a durable candidate graph (HydraDB), a
+live corpus of 1,886 real postings (hotdata), and pipelines split at the human
+gate (RocketRide), with 143 offline tests.
+
 ### Focus Play — AI Study Mode for YouTube
 *CMU project · github.com/sumeethaldipur/focus-play*
 
