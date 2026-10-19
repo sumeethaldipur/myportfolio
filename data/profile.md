@@ -385,71 +385,100 @@ this framing rather than reciting bullet points.
 
 ### What kind of PM are you?
 
-Data-led, and specifically root-cause-led. The pattern in most of my work is
-that the obvious explanation was wrong and the telemetry said something else.
-At ShareFile, everyone assumed clients were abandoning tasks midway — the data
-showed they never started. Power users looked like they disliked eSignature;
-they were actually routing around slow folder navigation. At WorkIndia,
-employer churn looked like a pricing problem and turned out to be a relevance
-problem. I try hard to separate what we've confirmed from what the team
-assumes.
+Data-led, and more specifically root-cause-led. A pattern runs through most of
+my work: the obvious explanation proves wrong, and the telemetry points
+elsewhere. At ShareFile, the working assumption was that clients abandoned
+tasks midway; the data showed they were never starting them. Power users
+appeared to dislike eSignature, when in fact they were routing around slow
+folder navigation. At WorkIndia, employer churn presented as a pricing problem
+and proved to be a relevance problem. I work to keep a clear line between what
+we have confirmed and what we have assumed.
 
 ### How do you approach a problem?
 
-I always start with two questions, in this order:
+I begin with two questions, in this order:
 
 1. **What is the problem to solve?**
-2. **Why is it the biggest problem to solve right now?**
+2. **Why is it the most important problem to solve now?**
 
-I genuinely believe fifty percent of the job is done the moment you pick the
-right problem. Solutioning is the easier half — understanding which problem
-actually deserves to be solved, and why it deserves to be solved *now* rather
-than later, is the hard part. Most teams skip straight to solutions and end up
-building something well-executed that nobody needed.
+A substantial share of the work is settled the moment the right problem is
+chosen. Solution design is the more tractable half; identifying which problem
+genuinely merits attention, and why it merits attention *now* rather than
+later, is the harder one. Without that step, a team can execute well and still
+deliver something its users did not need.
 
-That's the thread running through my work. At ShareFile the assumed problem was
-that clients abandoned tasks midway; the real one was that they never started.
-At WorkIndia the assumed problem was pricing; the real one was relevance. In
-both cases the solution was almost obvious once the problem was named correctly.
+That thread runs through my work. At ShareFile, the assumed problem was that
+clients abandoned tasks midway; the actual problem was that they never started
+them. At WorkIndia, the assumed problem was pricing; the actual problem was
+relevance. In both cases the solution became clear once the problem was named
+correctly.
 
 ### What drives you?
 
-Empathy, honestly. I'm an empathetic person by nature, and that's the whole
-reason I ended up in product management. My motivation for building anything is
-to solve a problem someone is actually facing in their life.
+Empathy. I am an empathetic person by nature, and it is the reason I moved into
+product management. My motivation for building anything is to address a problem
+someone is genuinely facing.
 
-That thread runs through everything I've done, not just my job. It's why I took
-up leadership roles, why I've worked with NGOs like Dongri to Degree and AIESEC,
-and why I moved into product. The goal has always been the same: do something
-that has a real impact on society and on people.
+That thread runs through more than my work. It is why I have taken on
+leadership roles, why I have worked with organisations such as Dongri to Degree
+and AIESEC, and why I moved into product. The intent has been consistent: to do
+work that has a real effect on people.
 
-It's also why the marketplace work mattered to me. Lead relevance at WorkIndia
-and taxonomy at Naukri weren't abstract data problems — they decided whether
+It is also why the marketplace work mattered to me. Lead relevance at WorkIndia
+and taxonomy at Naukri were not abstract data problems; they determined whether
 someone looking for work actually found it.
 
 ### What's your view on AI innovation?
 
-AI is a genuinely important domain and I want to build in it. But innovation
-has to be done while accounting for what use case it actually serves, how it
-works toward the betterment of humanity, and how people genuinely benefit from
-it — not creating random things to appease investors or to look fancy.
+AI is a genuinely important domain, and it is where I want to build. I believe
+innovation in it should be grounded in the use case it serves, the benefit
+people actually receive, and the ethical implications of deploying it at scale.
+Novelty on its own is not a sufficient reason to ship.
 
-If we're building something, it needs to solve an actual problem. That's the
-same test I'd apply to any feature; AI doesn't get an exemption from it. It's a
-large part of why I chose a program centred on AI product management rather
-than just AI.
+If we are building something, it should address a real problem. That is the
+same standard I would apply to any feature, and AI is not exempt from it. It is
+a large part of why I chose a programme centred on AI product management rather
+than on AI alone.
 
 ### Why the move from computer engineering into product?
 
-I have always felt that engineering is more about execution but true value lies in identifying the right problem and then building a solution for the creating the most optimal product. I feel like having technical knowledge but being able to understand what a user truly needs and what the user's problems are is the best way to go since that leads to building with empathy by keeping the user in mind instead of just executing and shipping things without a thought. Product management makes me build things that actually solve a problem in the world whereas my computer engineering background helps me coordinate with engineers and technical stakeholders better by actually understanding the technical feasibilities and often helps me build things on my own.
+Engineering taught me how things are built; product management is where I can
+shape what gets built, and why. For me the greater leverage sits in identifying
+the right problem and then designing the most effective solution to it.
+
+A technical foundation paired with a genuine understanding of user needs is the
+strongest combination I know of. It supports building with empathy, with the
+user held in view throughout rather than considered after the fact. My computer
+engineering background also helps me work closely with engineers and technical
+stakeholders, because I can reason about feasibility and trade-offs directly —
+and it often lets me build things myself.
 
 ### Why an MS in Software Management at CMU, and why AI Product Management?
 
-The MS in Software Management program at CMU is centered around AI product management which is what I want to invest in deeply since with the evolution of AI, it is important for me to understand how we build ethically while ensuring that we solve an actual problem rather than just shipping things because we can. The program is taught by Professors who have their own companies or are full time working professionals at big tech companies so learning about how AI is revolutionizing both entrepreneurship as well as tech ventures firsthand is very valuable. Down the line I want to either create my own company or play a pivotal role in shaping the strategy for a company which works very well with this program since it is very much into tech centered entrepreneurship.
+CMU's MS in Software Management is centred on AI product management, which is
+the area I want to invest in deeply. As AI continues to evolve, I want to
+understand how to build in it ethically while ensuring we are solving a real
+problem rather than shipping capability for its own sake.
+
+The programme is taught by faculty who run their own companies or work full
+time at major technology firms, so there is a direct line to how AI is
+reshaping both entrepreneurship and established tech ventures. Longer term, I
+would like either to start my own company or to help shape strategy at one, and
+the programme's focus on technology-centred entrepreneurship aligns closely
+with that.
 
 ### What are you looking for in a Summer 2027 internship?
 
-I am looking to work with a company that thinks problem first and then actually tries to understand whether AI is something that's needed rather than shoving it everywhere just to appease investors or to create a buzz. I want to solve real world problems that afflict majority of the world's population and have an impact towards it. I work the best when I am allowed to own an entire product and have proven to be a great leader and strategist when it comes to product management.
+I am looking for a team that works problem-first: one that starts from a
+clearly defined user need and then asks honestly whether AI is the right
+instrument for it, rather than applying it by default. How AI can be used
+ethically to create genuine human impact is the question I most want to work
+on.
+
+I am drawn to problems that affect people at scale, where a better product
+decision translates into a measurable difference in someone's day. I do my best
+work with end-to-end ownership of a product, and my experience has been in
+leading cross-functional teams and setting product direction.
 
 ### What's the work you're proudest of?
 
