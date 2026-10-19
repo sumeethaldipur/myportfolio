@@ -487,7 +487,15 @@ leading cross-functional teams and setting product direction.
 
 ### How do you work with engineers?
 
-<!-- TODO: -->
+Collaboratively, and as early in the process as possible. I treat engineers as
+participants in the product process rather than recipients of its output, which
+means bringing them in during discovery rather than at handoff.
+
+In practice that means establishing regular cadences to brainstorm together and
+involving engineers directly in discovery work. When the team has seen the
+problem first-hand, the reasoning behind a decision travels with the decision
+itself: trade-offs are better informed when we reach them, and the solutions
+are often ones I would not have arrived at on my own.
 
 ### Tell me about a time something failed.
 
