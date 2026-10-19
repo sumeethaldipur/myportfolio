@@ -9,8 +9,10 @@
   your resume — no compensation numbers, no candid takes on employers, no
   private contact details beyond what's already on the site.
 
-  Source of truth: Sumeet-Haldipur-Resume.pdf (Sep 2026, "Experiment 1"),
-  plus the portfolio site and public LinkedIn.
+  Source of truth: ~/Desktop/Sumeet_Haldipur_Resume.pdf (Oct 2026), plus the
+  portfolio site and public LinkedIn. NOTE: that resume lists
+  sumeethaldipur.work@gmail.com, but Sumeet asked on 2026-10-19 to keep the
+  CMU address everywhere on the site. Do not swap it.
 -->
 
 ## Identity
@@ -28,9 +30,10 @@
 
 Product Manager with three years of experience in end-to-end ownership of
 technical products across enterprise B2B software and consumer marketplaces.
-Computer engineering background, hands-on with Python and SQL, having shipped
-LLM-based matching and validation systems to production. MS in Software
-Management at Carnegie Mellon University, conferral December 2027.
+Outcome-driven, with a computer engineering background and hands-on Python and
+SQL — driving growth, retention and customer experience through 0-to-1 launches
+and user-centric features. MS in Software Management at Carnegie Mellon
+University, conferral December 2027.
 
 Cumulative reach across products owned: 175M+ users.
 
@@ -50,62 +53,61 @@ Cumulative reach across products owned: 175M+ users.
 ### Carnegie Mellon University — Aug 2026 to Dec 2027
 Master of Science in Software Management. Mountain View, CA.
 Teaching Assistant, 18-658SV Software Requirements & Interaction Design.
-Coursework: Product Management, AI Engineering Fundamentals, Product
-Leadership, Problem Discovery & Definition.
+Coursework: Product Management, AI Engineering, Product Leadership, Problem
+Discovery & Definition.
 
 ### Sardar Patel Institute of Technology — Aug 2019 to May 2023
 Bachelor of Technology, Computer Engineering. Mumbai, India.
-GPA 3.86 / 4.00.
-Coursework: Data Structures & Algorithms, Computer Networks, Operating
-Systems, Database Management Systems.
+GPA 3.9 / 4.00.
+Coursework: Project Management, Database Management Systems, Big Data
+Analytics, Data Structures & Algorithms.
 
 ## Professional experience
 
 ### Product Manager II — ShareFile, Progress Software (formerly Citrix ShareFile)
 **Apr 2025 – Jul 2026 · Bengaluru, India**
 
-ShareFile is a **$350M ARR** business.
-
-- **Improved monthly subscription retention by 12%** by leading the 0-to-1
-  launch of *ShareFile for Clients*, working across **14 cross-functional
-  stakeholders**.
-- **Cut document resubmissions by 44%** (from 32% to 18%) by shipping LLM
-  validation that flagged incorrect uploads at intake.
-- **Reduced client task completion time by 43%** by tailoring notification
-  flows to each task type.
-- **Accelerated idea-to-backlog time by 53% for 18 PMs** by creating **6 MCP
-  agents** over Salesforce, Jira and other APIs, letting the whole product team
-  query customer signals in natural language.
-- **Led strategy and roadmap and defined success criteria** for ShareFile's
-  **3 mobile and desktop apps** (**6M+ business users**) across Windows, Mac,
-  Android and iOS.
+- **Owned end-to-end product strategy and execution** for ShareFile's mobile
+  and desktop apps (**6M+ business users**), across Windows, Mac, Android and
+  iOS.
+- **Led the zero-to-one development of the *ShareFile for Clients* mobile
+  app**, driving mobile to account for **23% of all client task completions**
+  across platforms within the first six months.
+- **Reduced average client task completion time by 43%** by introducing
+  tailored notifications and reminders, letting businesses collect documents
+  and signatures faster.
+- **Increased eSignature usage on the Desktop App by 31%** by streamlining the
+  signing workflow and reducing friction.
 
 ### Associate Product Manager — Naukri.com, Info Edge
 **Oct 2024 – Mar 2025 · Noida, India**
 
 India's largest job portal.
 
-- **Lifted daily recruiter-candidate connections by 31%** by normalizing
-  misspelled institute data across **120M+ profiles** — coverage moved from
-  51% to 96% by crawling trusted sources, with similarity scores automating
-  high-confidence matches and everything below threshold routed for human
-  labelling.
-- **Raised the job application rate by 34%** by using LLMs to map **110K+
-  localities at 98% accuracy**, powering radius-based search.
+- **Helmed the taxonomy charter** for India's largest job platform (**120M+
+  jobseekers**), correcting and enriching the data behind algorithms across
+  **14 separate Info Edge companies**.
+- **Identified patterns, standardized data, built scalable processes and
+  leveraged LLMs** to enhance data mapping: **+47% jobseeker location
+  mapping**, **+60% language mapping** and **+25% institute mapping** against
+  Naukri's database.
+- **Drove a 104% increase in institute coverage** by scraping multiple sources
+  and standardizing the institute names jobseekers commonly mis-enter.
 
 ### Associate Product Manager — WorkIndia
 **Jul 2023 – Sep 2024 · Bengaluru, India**
 
 Blue- and gray-collar job platform.
 
-- **Increased recruiter NPS by 19 points** on a **50M+ marketplace** by
-  rebuilding the matching algorithm around pain points surfaced in **40+
-  customer interviews**.
-- **Increased onboarding completion by 24%** by replacing text-based signup
-  workflows with image-led ones — jobseekers could not read the text, and
-  India's linguistic diversity made localization infeasible.
-- **Optimized messaging spend by 63% with no engagement drop** by auditing
-  WhatsApp, SMS and IVR sends.
+- **Raised NPS by 19 points and leads consumed per employer by 53%** by
+  digging into lead relevance and product usability on a **50M+ jobseeker**
+  portal through extensive data analysis and user interviews.
+- **Increased relevant job applications by 54%** by owning the irrelevant-
+  applications problem end to end, from identification through implementation.
+- **Improved the onboarding funnel by 48%** by tracing drop-off to flow
+  comprehension and shipping an image-based onboarding flow — jobseekers could
+  not read the text, and India's linguistic diversity made localization
+  infeasible.
 
 ## Internships
 
@@ -131,6 +133,14 @@ This assistant. A portfolio featuring an LLM assistant that answers recruiter
 questions about Sumeet's background, experience and projects, combining RAG
 with Jina embeddings and full-context prompting through an automatic fallback
 mechanism.
+
+### Focus Play — AI Study Mode for YouTube
+*CMU project · github.com/sumeethaldipur/focus-play*
+
+Turns the best moments across creator videos into one short lesson sized to a
+student's available time, so they skip the searching and scrubbing. Shaped by
+**18 student interviews** and backed by **7 LLM evals** and a cost-to-serve
+model.
 
 ### Kindling — Evidence-Backed Accountability App
 *Android, Python, LLM APIs, RAG · github.com/sumeethaldipur/kindling*
@@ -164,14 +174,14 @@ he is technical, or how he uses AI in product work.
 - **6 MCP agents (ShareFile).** Salesforce, Jira and other APIs behind one
   natural-language query surface, letting the whole product team interrogate
   customer signals. **Cut idea-to-backlog time 53% for 18 PMs.**
-- **LLM locality mapping (Naukri).** Mapped **110K+ localities at 98%
-  accuracy** to power radius-based search, **raising the job application rate
-  34%**.
-- **LLM-assisted institute normalization (Naukri).** Cleaned misspelled
-  institute data across **120M+ profiles** (coverage 51% → 96%),
-  auto-accepting high-confidence similarity matches and routing everything
-  below threshold to human labelling rather than trusting unverified model
-  output. **Daily recruiter-candidate connections rose 31%.**
+- **LLM-enhanced data mapping (Naukri).** Owned the taxonomy charter across
+  **14 Info Edge companies**, using LLMs to standardize jobseeker data:
+  **+47% location mapping**, **+60% language mapping**, **+25% institute
+  mapping**.
+- **Institute database enrichment (Naukri).** Scraped and normalized the
+  institute names jobseekers commonly mis-enter, **lifting institute coverage
+  104%** — high-confidence matches auto-accepted, everything below threshold
+  routed to human labelling rather than trusting unverified model output.
 
 **Built himself:**
 
@@ -179,6 +189,11 @@ he is technical, or how he uses AI in product work.
   embeddings and full-context prompting, on NVIDIA Nemotron. He benchmarked
   both strategies and shipped full-context after retrieval lost on synthesis
   questions.
+- **Focus Play.** An AI study mode for YouTube that assembles the best moments
+  across creator videos into one time-boxed lesson. Shaped by 18 student
+  interviews; every change is gated behind **7 LLM evals**, with a
+  cost-to-serve model sitting alongside them so quality and unit economics are
+  judged together.
 - **Kindling.** An accountability app that turns an avoided task into one
   five-minute LLM-generated first action, then uses RAG over the user's own
   WhatsApp history to surface real praise from peers against self-doubt. Every
@@ -189,7 +204,7 @@ he is technical, or how he uses AI in product work.
   accumulates. Published at IEEE INCET 2023.
 
 **Study:** *Mastering Generative AI for Product Innovation*, Stanford (2025),
-and AI Engineering Fundamentals coursework at CMU.
+and AI Engineering coursework at CMU.
 
 **The judgment that runs through it:** precision and false-positive tradeoffs
 set deliberately, and human-in-the-loop wherever unverified model output would
