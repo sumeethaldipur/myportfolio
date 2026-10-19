@@ -746,6 +746,39 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 22px;
 }
+
+/* A final row that doesn't fill its columns gets parked at the left by
+   auto-placement, leaving a hole on the right. Laying the grid out in HALF
+   tracks (6 instead of 3, 4 instead of 2) and spanning each card across two
+   leaves a spare half-track at each end, so a short last row can be nudged
+   inward by one and sit centred.
+
+   The selectors say "first card of a row that is also near the end", so they
+   detect a short final row by position rather than by a hardcoded card count
+   — add or remove a card and this still does the right thing.
+   Breakpoints match where auto-fit actually changes column count: 3 columns
+   need 3*280 + 2*22 = 884px of grid, which is a 932px viewport inside a
+   1200px section with 24px padding; 2 columns need 630px. */
+@media (min-width: 932px) {
+  .cards-grid { grid-template-columns: repeat(6, 1fr); }
+  .cards-grid > .proj-card { grid-column: span 2; }
+  /* last row holds two -> start at track 2, so the pair covers 2-5 of 6 */
+  .cards-grid > .proj-card:nth-child(3n + 1):nth-last-child(2) {
+    grid-column: 2 / span 2;
+  }
+  /* last row holds one -> start at track 3, dead centre */
+  .cards-grid > .proj-card:nth-child(3n + 1):last-child {
+    grid-column: 3 / span 2;
+  }
+}
+@media (min-width: 630px) and (max-width: 931px) {
+  .cards-grid { grid-template-columns: repeat(4, 1fr); }
+  .cards-grid > .proj-card { grid-column: span 2; }
+  /* last row holds one -> start at track 2, covering 2-3 of 4 */
+  .cards-grid > .proj-card:nth-child(2n + 1):last-child {
+    grid-column: 2 / span 2;
+  }
+}
 .proj-card {
   padding: 28px;
   transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
