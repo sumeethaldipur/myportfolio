@@ -482,8 +482,37 @@ leading cross-functional teams and setting product direction.
 
 ### What's the work you're proudest of?
 
-<!-- TODO: Pick one and tell the story — situation, what you did, what
-     happened. -->
+The matching and ranking work at WorkIndia, a job platform for blue- and
+gray-collar roles.
+
+Employers reached candidates two ways: a database product, where they browsed
+candidate profiles and decided who was worth contacting, and job posts on the
+app that candidates applied to directly. Underneath both ran a persistent
+complaint — the candidates were not relevant. I was asked to improve relevance,
+which in practice meant improving employer satisfaction.
+
+I began by establishing what employers actually meant by "relevant" rather than
+assuming it. I took the five role types with the highest posting volume and the
+lowest satisfaction, and worked with the consumer insights team on a
+large-scale survey: we called employers about candidates they had connected
+with very recently, asked whether each was relevant, and then asked why — which
+parameters had driven that judgement. I ran my own user interviews alongside
+it.
+
+Mapping those answers back to role types surfaced the real problem. The
+definition of relevance varies drastically from one role to the next, and our
+ranking logic did not reflect that at all: we had a one-size-fits-all
+algorithm, so whatever you posted for, candidates were ordered the same way.
+
+To test that against data rather than interviews alone, I defined a **match
+score** that took the role-specific parameters as inputs. Satisfaction rose and
+fell with it, which gave me the same answer from two independent directions. I
+then rebuilt the matching and ranking algorithm around that score, so each role
+type surfaced the candidates it actually needed.
+
+Net Promoter Score rose **19 points** over the following year. What I valued
+most was that employers raised the improvement unprompted, saying the quality
+of candidates had changed significantly.
 
 ### How do you work with engineers?
 
